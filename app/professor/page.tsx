@@ -1,10 +1,88 @@
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { criarAula } from "./actions";
 import ListaChamada from "@/components/ListaChamada";
+import CalendarioMensal from "@/components/CalendarioMensal";
+import {
+  chaveDia,
+  resolverMesReferencia,
+  LABEL_TIPO_AGENDAMENTO,
+  type AulaDoDia,
+} from "@/lib/calendario";
 
-export default async function ProfessorPage() {
+export default async function ProfessorPage({
+  searchParams,
+}: {
+  searchParams: { mes?: string };
+}) {
   const profile = await getProfile();
   const supabase = createClient();
+
+  const mesRef = resolverMesReferencia(searchParams.mes);
+  const inicioMes = new Date(mesRef.getFullYear(), mesRef.getMonth(), 1);
+  const fimMes = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 1);
+
+  const { data: meusAlunos } = await supabase
+    .from("alunos")
+    .select("id, nome, link_aula, valor, status_pagamento, pix_copia_cola")
+    .eq("professor_id", profile?.id);
+
+  const alunoIds = (meusAlunos ?? []).map((a) => a.id);
+  const dadosPorAlunoId = new Map((meusAlunos ?? []).map((a) => [a.id, a]));
+
+  const { data: horariosDoMes } = alunoIds.length
+    ? await supabase
+        .from("aluno_horarios")
+        .select("id, data_hora, aluno_id")
+        .in("aluno_id", alunoIds)
+        .gte("data_hora", inicioMes.toISOString())
+        .lt("data_hora", fimMes.toISOString())
+        .order("data_hora")
+    : { data: [] };
+
+  const aulasPorDia: Record<string, AulaDoDia[]> = {};
+  for (const h of horariosDoMes ?? []) {
+    const dt = new Date(h.data_hora);
+    const chave = chaveDia(dt);
+    const hora = dt.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const aluno = dadosPorAlunoId.get(h.aluno_id);
+    (aulasPorDia[chave] ??= []).push({
+      id: h.id,
+      hora,
+      titulo: aluno?.nome ?? "Aluno",
+      linkAula: aluno?.link_aula,
+      valor: aluno?.valor,
+      statusPagamento: aluno?.status_pagamento,
+      pixCopiaCola: aluno?.pix_copia_cola,
+    });
+  }
+
+  const { data: agendamentosDoMes } = await supabase
+    .from("agendamentos_avulsos")
+    .select("id, nome, tipo, data_hora, email, telefone, observacoes")
+    .eq("professor_id", profile?.id)
+    .gte("data_hora", inicioMes.toISOString())
+    .lt("data_hora", fimMes.toISOString())
+    .order("data_hora");
+
+  for (const a of agendamentosDoMes ?? []) {
+    const dt = new Date(a.data_hora);
+    const chave = chaveDia(dt);
+    const hora = dt.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const contato = [a.email, a.telefone].filter(Boolean).join(" · ");
+    (aulasPorDia[chave] ??= []).push({
+      id: a.id,
+      hora,
+      titulo: `${LABEL_TIPO_AGENDAMENTO[a.tipo] ?? a.tipo} — ${a.nome}`,
+      contato: contato || null,
+      observacoes: a.observacoes,
+    });
+  }
 
   const { data: turmas } = await supabase
     .from("turmas")
@@ -45,11 +123,20 @@ export default async function ProfessorPage() {
   }
 
   return (
-    <main className="min-h-screen bg-paper text-ink px-8 py-10">
+    <main className="px-8 py-10">
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do professor
       </p>
       <h1 className="font-display text-3xl mb-8">Olá, {profile?.nome}</h1>
+
+      <section className="max-w-3xl mb-10">
+        <h2 className="font-display text-lg mb-3">Aulas do mês</h2>
+        <CalendarioMensal
+          mesRef={mesRef}
+          aulasPorDia={aulasPorDia}
+          baseHref="/professor"
+        />
+      </section>
 
       {!primeiraTurma ? (
         <p className="text-sm text-ink/60">
