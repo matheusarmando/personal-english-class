@@ -2,8 +2,10 @@ import Link from "next/link";
 import { getProfile } from "@/lib/supabase/server";
 
 const NAV_ITEMS = [
-  { label: "Cadastro", href: "/aluno/cadastro" },
-  { label: "Painel", href: "/aluno" },
+  { label: "Visão geral", href: "/gestao" },
+  { label: "Turmas", href: "/gestao" },
+  { label: "Professores", href: "/gestao" },
+  { label: "Alunos", href: "/gestao" },
 ];
 
 function iniciais(nome?: string | null) {
@@ -16,7 +18,7 @@ function iniciais(nome?: string | null) {
     .join("");
 }
 
-export default async function AlunoLayout({
+export default async function GestaoLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -30,11 +32,15 @@ export default async function AlunoLayout({
           Personal English Class
         </span>
         <nav className="flex flex-col gap-1 flex-1">
-          {NAV_ITEMS.map((item) => (
+          {NAV_ITEMS.map((item, i) => (
             <Link
-              key={item.href}
+              key={item.label}
               href={item.href}
-              className="text-sm font-semibold text-ink/60 hover:text-accent hover:bg-accentSoft/40 transition-colors rounded-lg px-2.5 py-2"
+              className={`text-sm font-semibold rounded-lg px-2.5 py-2 transition-colors ${
+                i === 0
+                  ? "bg-accentSoft/60 text-ink"
+                  : "text-ink/60 hover:text-accent hover:bg-accentSoft/40"
+              }`}
             >
               {item.label}
             </Link>
@@ -47,7 +53,7 @@ export default async function AlunoLayout({
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{profile?.nome}</p>
             <p className="text-[11px] uppercase tracking-wide text-ink/50">
-              Aluno
+              Gestão
             </p>
           </div>
         </div>

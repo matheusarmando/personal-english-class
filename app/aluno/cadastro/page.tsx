@@ -18,7 +18,7 @@ export default async function CadastroAlunoPage() {
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do aluno
       </p>
-      <h1 className="font-display text-3xl mb-8">Meu cadastro</h1>
+      <h1 className="font-display font-semibold text-3xl mb-8">Meu cadastro</h1>
 
       {!aluno ? (
         <p className="text-sm text-ink/60 max-w-xl">
@@ -28,7 +28,7 @@ export default async function CadastroAlunoPage() {
       ) : (
         <div className="max-w-xl space-y-8">
           <section>
-            <h2 className="font-display text-lg mb-3">
+            <h2 className="font-display font-semibold text-lg mb-3">
               Editar dados pessoais
             </h2>
             <form
@@ -77,7 +77,7 @@ export default async function CadastroAlunoPage() {
               <div className="sm:col-span-2">
                 <button
                   type="submit"
-                  className="rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+                  className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
                 >
                   Salvar alterações
                 </button>
@@ -86,7 +86,7 @@ export default async function CadastroAlunoPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-lg mb-3">
+            <h2 className="font-display font-semibold text-lg mb-3">
               Outras informações (somente leitura)
             </h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/60 border border-line rounded-xl p-6 text-sm">
@@ -99,10 +99,10 @@ export default async function CadastroAlunoPage() {
                 <dt className="text-xs text-ink/50 mb-0.5">Status</dt>
                 <dd>
                   <span
-                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    className={`text-xs font-semibold px-2 py-1 rounded-full ${
                       aluno.ativo
-                        ? "bg-accentSoft text-accent"
-                        : "bg-line/40 text-ink/50"
+                        ? "bg-good/15 text-good"
+                        : "bg-line/50 text-ink/50"
                     }`}
                   >
                     {aluno.ativo ? "Ativo" : "Inativo"}
@@ -116,12 +116,12 @@ export default async function CadastroAlunoPage() {
                 </dt>
                 <dd>
                   <span
-                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    className={`text-xs font-semibold px-2 py-1 rounded-full ${
                       aluno.status_pagamento === "pago"
-                        ? "bg-accentSoft text-accent"
+                        ? "bg-good/15 text-good"
                         : aluno.status_pagamento === "atrasado"
-                        ? "bg-red-50 text-red-600"
-                        : "bg-line/40 text-ink/60"
+                        ? "bg-bad/15 text-bad"
+                        : "bg-warn/15 text-warn"
                     }`}
                   >
                     {aluno.status_pagamento}

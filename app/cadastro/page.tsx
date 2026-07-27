@@ -60,7 +60,7 @@ export default function CadastroPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm bg-white/70 border border-line rounded-xl p-8"
       >
-        <h1 className="font-display text-2xl mb-1">Criar conta</h1>
+        <h1 className="font-display font-semibold text-2xl mb-1">Criar conta</h1>
         <p className="text-sm text-ink/60 mb-6">
           Cadastre-se para acessar sua área de aluno.
         </p>
@@ -116,13 +116,13 @@ export default function CadastroPage() {
         />
 
         {error && (
-          <p className="text-sm text-red-600 mb-4" role="alert">
+          <p className="text-sm text-bad mb-4" role="alert">
             {error}
           </p>
         )}
 
         {info && (
-          <p className="text-sm text-green-700 mb-4" role="status">
+          <p className="text-sm text-good mb-4" role="status">
             {info}
           </p>
         )}
@@ -130,7 +130,7 @@ export default function CadastroPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-ink text-paper py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+          className="w-full rounded-lg bg-accent text-white py-2.5 text-sm font-semibold hover:-translate-y-px transition-transform disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {loading ? "Criando conta..." : "Criar conta"}
         </button>

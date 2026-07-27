@@ -63,10 +63,10 @@ export default async function AlunoPage({
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do aluno
       </p>
-      <h1 className="font-display text-3xl mb-8">Olá, {profile?.nome}</h1>
+      <h1 className="font-display font-semibold text-3xl mb-8">Olá, {profile?.nome}</h1>
 
       <section className="max-w-3xl mb-10">
-        <h2 className="font-display text-lg mb-3">Minhas aulas do mês</h2>
+        <h2 className="font-display font-semibold text-lg mb-3">Minhas aulas do mês</h2>
         <CalendarioMensal
           mesRef={mesRef}
           aulasPorDia={aulasPorDia}
@@ -75,7 +75,7 @@ export default async function AlunoPage({
       </section>
 
       <section className="max-w-xl">
-        <h2 className="font-display text-lg mb-3">Minha frequência</h2>
+        <h2 className="font-display font-semibold text-lg mb-3">Minha frequência</h2>
         {!presencas || presencas.length === 0 ? (
           <p className="text-sm text-ink/60">
             Nenhum registro de presença ainda.
@@ -91,10 +91,8 @@ export default async function AlunoPage({
                   </p>
                 </div>
                 <span
-                  className={`text-xs font-medium px-2 py-1 rounded-full ${
-                    p.presente
-                      ? "bg-accentSoft text-accent"
-                      : "bg-red-50 text-red-600"
+                  className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                    p.presente ? "bg-good/15 text-good" : "bg-bad/15 text-bad"
                   }`}
                 >
                   {p.presente ? "Presente" : "Ausente"}

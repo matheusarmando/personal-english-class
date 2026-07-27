@@ -65,7 +65,7 @@ export default function CalendarioMensal({
         >
           ← Anterior
         </Link>
-        <span className="font-display text-sm capitalize">{tituloMes}</span>
+        <span className="font-display font-semibold text-sm capitalize">{tituloMes}</span>
         <Link
           href={mesHref(baseHref, mesRef, 1)}
           className="text-sm text-ink/60 hover:text-accent transition-colors"
@@ -141,7 +141,7 @@ export default function CalendarioMensal({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
-              <h3 className="font-display text-xl">{aulaSelecionada.titulo}</h3>
+              <h3 className="font-display font-semibold text-xl">{aulaSelecionada.titulo}</h3>
               <button
                 type="button"
                 onClick={() => setAulaSelecionada(null)}
@@ -205,12 +205,12 @@ export default function CalendarioMensal({
                   </dt>
                   <dd>
                     <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      className={`text-xs font-semibold px-2 py-1 rounded-full ${
                         aulaSelecionada.statusPagamento === "pago"
-                          ? "bg-accentSoft text-accent"
+                          ? "bg-good/15 text-good"
                           : aulaSelecionada.statusPagamento === "atrasado"
-                          ? "bg-red-50 text-red-600"
-                          : "bg-line/40 text-ink/60"
+                          ? "bg-bad/15 text-bad"
+                          : "bg-warn/15 text-warn"
                       }`}
                     >
                       {LABEL_STATUS_PAGAMENTO[aulaSelecionada.statusPagamento] ??

@@ -6,7 +6,7 @@ export default function AcessoNegadoPage() {
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-3">
         Acesso restrito
       </p>
-      <h1 className="font-display text-3xl mb-3">
+      <h1 className="font-display font-semibold text-3xl mb-3">
         Essa área não é para o seu perfil.
       </h1>
       <p className="text-sm text-ink/60 mb-6 max-w-sm">

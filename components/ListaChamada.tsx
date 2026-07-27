@@ -34,8 +34,8 @@ export default function ListaChamada({
               }
               className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                 aluno.presente
-                  ? "bg-accentSoft text-accent border-accent"
-                  : "border-line hover:border-accent"
+                  ? "bg-good/15 text-good border-good"
+                  : "border-line hover:border-good"
               }`}
             >
               Presente
@@ -47,8 +47,8 @@ export default function ListaChamada({
               }
               className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                 aluno.presente === false
-                  ? "bg-red-50 text-red-600 border-red-300"
-                  : "border-line hover:border-red-300"
+                  ? "bg-bad/15 text-bad border-bad"
+                  : "border-line hover:border-bad"
               }`}
             >
               Ausente

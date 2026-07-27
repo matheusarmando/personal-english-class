@@ -35,11 +35,11 @@ export default async function AlunoPage({
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do professor
       </p>
-      <h1 className="font-display text-3xl mb-8">{aluno.nome}</h1>
+      <h1 className="font-display font-semibold text-3xl mb-8">{aluno.nome}</h1>
 
       <div className="max-w-2xl space-y-10">
         <section>
-          <h2 className="font-display text-lg mb-3">Dados do aluno</h2>
+          <h2 className="font-display font-semibold text-lg mb-3">Dados do aluno</h2>
           <form
             action={atualizarAluno.bind(null, aluno.id)}
             className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/70 border border-line rounded-xl p-6"
@@ -170,7 +170,7 @@ export default async function AlunoPage({
             <div className="sm:col-span-2 flex items-center justify-between">
               <button
                 type="submit"
-                className="rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+                className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
               >
                 Salvar alterações
               </button>
@@ -180,7 +180,7 @@ export default async function AlunoPage({
           <form action={excluirAluno.bind(null, aluno.id)} className="mt-3">
             <button
               type="submit"
-              className="text-xs text-red-600 hover:underline"
+              className="text-xs text-bad hover:underline"
             >
               Excluir aluno
             </button>
@@ -188,7 +188,7 @@ export default async function AlunoPage({
         </section>
 
         <section>
-          <h2 className="font-display text-lg mb-3">Aulas agendadas</h2>
+          <h2 className="font-display font-semibold text-lg mb-3">Aulas agendadas</h2>
 
           {!horarios || horarios.length === 0 ? (
             <p className="text-sm text-ink/60 mb-4">
@@ -213,7 +213,7 @@ export default async function AlunoPage({
                     <form action={removerHorario.bind(null, aluno.id, h.id)}>
                       <button
                         type="submit"
-                        className="text-xs text-red-600 hover:underline"
+                        className="text-xs text-bad hover:underline"
                       >
                         Remover
                       </button>
@@ -242,7 +242,7 @@ export default async function AlunoPage({
             />
             <button
               type="submit"
-              className="rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+              className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
             >
               Adicionar aula
             </button>

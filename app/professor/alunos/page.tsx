@@ -17,11 +17,11 @@ export default async function AlunosPage() {
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do professor
       </p>
-      <h1 className="font-display text-3xl mb-8">Cadastro de alunos</h1>
+      <h1 className="font-display font-semibold text-3xl mb-8">Cadastro de alunos</h1>
 
       <div className="max-w-2xl space-y-10">
         <section>
-          <h2 className="font-display text-lg mb-3">Novo aluno</h2>
+          <h2 className="font-display font-semibold text-lg mb-3">Novo aluno</h2>
           <form
             action={criarAluno}
             className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/70 border border-line rounded-xl p-6"
@@ -145,7 +145,7 @@ export default async function AlunosPage() {
             <div className="sm:col-span-2">
               <button
                 type="submit"
-                className="rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+                className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
               >
                 Cadastrar aluno
               </button>
@@ -154,7 +154,7 @@ export default async function AlunosPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-lg mb-3">Meus alunos</h2>
+          <h2 className="font-display font-semibold text-lg mb-3">Meus alunos</h2>
           {!alunos || alunos.length === 0 ? (
             <p className="text-sm text-ink/60">
               Nenhum aluno cadastrado ainda.
@@ -176,21 +176,21 @@ export default async function AlunosPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           aluno.status_pagamento === "pago"
-                            ? "bg-accentSoft text-accent"
+                            ? "bg-good/15 text-good"
                             : aluno.status_pagamento === "atrasado"
-                            ? "bg-red-50 text-red-600"
-                            : "bg-line/40 text-ink/60"
+                            ? "bg-bad/15 text-bad"
+                            : "bg-warn/15 text-warn"
                         }`}
                       >
                         {aluno.status_pagamento}
                       </span>
                       <span
-                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           aluno.ativo
-                            ? "bg-accentSoft text-accent"
-                            : "bg-line/40 text-ink/50"
+                            ? "bg-good/15 text-good"
+                            : "bg-line/50 text-ink/50"
                         }`}
                       >
                         {aluno.ativo ? "Ativo" : "Inativo"}

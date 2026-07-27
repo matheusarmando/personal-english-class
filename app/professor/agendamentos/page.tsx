@@ -17,11 +17,11 @@ export default async function AgendamentosPage() {
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do professor
       </p>
-      <h1 className="font-display text-3xl mb-8">Agendamentos avulsos</h1>
+      <h1 className="font-display font-semibold text-3xl mb-8">Agendamentos avulsos</h1>
 
       <div className="max-w-2xl space-y-10">
         <section>
-          <h2 className="font-display text-lg mb-3">Novo agendamento</h2>
+          <h2 className="font-display font-semibold text-lg mb-3">Novo agendamento</h2>
           <p className="text-xs text-ink/50 mb-3">
             Para compromissos pontuais que não fazem parte da agenda
             recorrente de um aluno já cadastrado — por exemplo, um teste de
@@ -126,7 +126,7 @@ export default async function AgendamentosPage() {
             <div className="sm:col-span-2">
               <button
                 type="submit"
-                className="rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+                className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
               >
                 Agendar
               </button>
@@ -135,7 +135,7 @@ export default async function AgendamentosPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-lg mb-3">Próximos agendamentos</h2>
+          <h2 className="font-display font-semibold text-lg mb-3">Próximos agendamentos</h2>
           {!agendamentos || agendamentos.length === 0 ? (
             <p className="text-sm text-ink/60">
               Nenhum agendamento avulso cadastrado ainda.
@@ -163,7 +163,7 @@ export default async function AgendamentosPage() {
                     <form action={excluirAgendamentoAvulso.bind(null, a.id)}>
                       <button
                         type="submit"
-                        className="text-xs text-red-600 hover:underline"
+                        className="text-xs text-bad hover:underline"
                       >
                         Excluir
                       </button>

@@ -23,7 +23,7 @@ export default async function ProfessorPage({
 
   const { data: meusAlunos } = await supabase
     .from("alunos")
-    .select("id, nome, link_aula, valor, status_pagamento, pix_copia_cola")
+    .select("id, nome, ativo, link_aula, valor, status_pagamento, pix_copia_cola")
     .eq("professor_id", profile?.id);
 
   const alunoIds = (meusAlunos ?? []).map((a) => a.id);
@@ -84,6 +84,41 @@ export default async function ProfessorPage({
     });
   }
 
+  const alunosAtivos = (meusAlunos ?? []).filter((a) => a.ativo).length;
+  const pagamentosPendentes = (meusAlunos ?? []).filter(
+    (a) => a.ativo && a.status_pagamento !== "pago"
+  ).length;
+
+  const hoje = new Date();
+  const inicioSemana = new Date(
+    hoje.getFullYear(),
+    hoje.getMonth(),
+    hoje.getDate() - hoje.getDay()
+  );
+  const fimSemana = new Date(
+    inicioSemana.getFullYear(),
+    inicioSemana.getMonth(),
+    inicioSemana.getDate() + 7
+  );
+
+  const { count: aulasSemanaHorarios } = alunoIds.length
+    ? await supabase
+        .from("aluno_horarios")
+        .select("id", { count: "exact", head: true })
+        .in("aluno_id", alunoIds)
+        .gte("data_hora", inicioSemana.toISOString())
+        .lt("data_hora", fimSemana.toISOString())
+    : { count: 0 };
+
+  const { count: aulasSemanaAvulsos } = await supabase
+    .from("agendamentos_avulsos")
+    .select("id", { count: "exact", head: true })
+    .eq("professor_id", profile?.id)
+    .gte("data_hora", inicioSemana.toISOString())
+    .lt("data_hora", fimSemana.toISOString());
+
+  const aulasEssaSemana = (aulasSemanaHorarios ?? 0) + (aulasSemanaAvulsos ?? 0);
+
   const { data: turmas } = await supabase
     .from("turmas")
     .select("id, nome")
@@ -124,13 +159,40 @@ export default async function ProfessorPage({
 
   return (
     <main className="px-8 py-10">
-      <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
-        Área do professor
-      </p>
-      <h1 className="font-display text-3xl mb-8">Olá, {profile?.nome}</h1>
+      <div className="flex items-baseline justify-between mb-6">
+        <h1 className="font-display font-bold text-2xl">Olá, {profile?.nome}</h1>
+        <span className="text-sm text-ink/50">Área do professor</span>
+      </div>
+
+      <section className="grid grid-cols-3 gap-4 max-w-3xl mb-8">
+        <div className="border border-line rounded-xl p-4 bg-white">
+          <p className="text-[11px] uppercase tracking-wide text-ink/50">
+            Alunos ativos
+          </p>
+          <p className="font-display font-bold text-3xl mt-1 tabular-nums">
+            {alunosAtivos}
+          </p>
+        </div>
+        <div className="border border-line rounded-xl p-4 bg-white">
+          <p className="text-[11px] uppercase tracking-wide text-ink/50">
+            Aulas essa semana
+          </p>
+          <p className="font-display font-bold text-3xl mt-1 tabular-nums">
+            {aulasEssaSemana}
+          </p>
+        </div>
+        <div className="border border-line rounded-xl p-4 bg-white">
+          <p className="text-[11px] uppercase tracking-wide text-ink/50">
+            Pagamentos pendentes
+          </p>
+          <p className="font-display font-bold text-3xl mt-1 tabular-nums text-warn">
+            {pagamentosPendentes}
+          </p>
+        </div>
+      </section>
 
       <section className="max-w-3xl mb-10">
-        <h2 className="font-display text-lg mb-3">Aulas do mês</h2>
+        <h2 className="font-display font-bold text-lg mb-3">Aulas do mês</h2>
         <CalendarioMensal
           mesRef={mesRef}
           aulasPorDia={aulasPorDia}
@@ -146,7 +208,7 @@ export default async function ProfessorPage({
       ) : (
         <div className="max-w-xl space-y-8">
           <section>
-            <h2 className="font-display text-lg mb-3">
+            <h2 className="font-display font-bold text-lg mb-3">
               Nova aula — {primeiraTurma.nome}
             </h2>
             <form action={criarAula} className="flex gap-2 flex-wrap">
@@ -165,7 +227,7 @@ export default async function ProfessorPage({
               />
               <button
                 type="submit"
-                className="rounded-full bg-ink text-paper px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+                className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
               >
                 Criar aula
               </button>
@@ -174,7 +236,7 @@ export default async function ProfessorPage({
 
           {primeiraAula && (
             <section>
-              <h2 className="font-display text-lg mb-3">
+              <h2 className="font-display font-bold text-lg mb-3">
                 Chamada — {primeiraAula.titulo} ({primeiraAula.data})
               </h2>
               {alunos.length === 0 ? (
