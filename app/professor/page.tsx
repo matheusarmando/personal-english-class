@@ -34,6 +34,7 @@ export default async function ProfessorPage({
         .from("aluno_horarios")
         .select("id, data_hora, aluno_id")
         .in("aluno_id", alunoIds)
+        .neq("status", "cancelada")
         .gte("data_hora", inicioMes.toISOString())
         .lt("data_hora", fimMes.toISOString())
         .order("data_hora")

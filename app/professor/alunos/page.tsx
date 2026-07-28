@@ -117,6 +117,21 @@ export default async function AlunosPage() {
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm mb-1" htmlFor="dia_vencimento">
+                Dia do vencimento
+              </label>
+              <input
+                id="dia_vencimento"
+                name="dia_vencimento"
+                type="number"
+                min="1"
+                max="31"
+                placeholder="Ex.: 10"
+                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
             <div className="sm:col-span-2">
               <label className="block text-sm mb-1" htmlFor="pix_copia_cola">
                 PIX copia e cola

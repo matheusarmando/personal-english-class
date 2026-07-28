@@ -5,6 +5,7 @@ import {
   excluirAluno,
   adicionarHorario,
   removerHorario,
+  concluirAula,
 } from "../actions";
 
 export default async function AlunoPage({
@@ -17,7 +18,7 @@ export default async function AlunoPage({
   const { data: aluno } = await supabase
     .from("alunos")
     .select(
-      "id, nome, email, telefone, data_nascimento, link_aula, valor, status_pagamento, ativo, pix_copia_cola"
+      "id, nome, email, telefone, data_nascimento, link_aula, valor, dia_vencimento, status_pagamento, ativo, pix_copia_cola"
     )
     .eq("id", params.id)
     .single();
@@ -26,7 +27,7 @@ export default async function AlunoPage({
 
   const { data: horarios } = await supabase
     .from("aluno_horarios")
-    .select("id, data_hora")
+    .select("id, data_hora, status, conteudo, exercicio")
     .eq("aluno_id", aluno.id)
     .order("data_hora");
 
@@ -141,6 +142,22 @@ export default async function AlunoPage({
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm mb-1" htmlFor="dia_vencimento">
+                Dia do vencimento
+              </label>
+              <input
+                id="dia_vencimento"
+                name="dia_vencimento"
+                type="number"
+                min="1"
+                max="31"
+                placeholder="Ex.: 10"
+                defaultValue={aluno.dia_vencimento ?? ""}
+                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
             <div className="sm:col-span-2">
               <label className="block text-sm mb-1" htmlFor="pix_copia_cola">
                 PIX copia e cola
@@ -198,26 +215,72 @@ export default async function AlunoPage({
             <ul className="divide-y divide-line border border-line rounded-xl overflow-hidden bg-white/60 mb-4">
               {horarios.map((h) => {
                 const dt = new Date(h.data_hora);
+                const dataHoraFmt = `${dt.toLocaleDateString("pt-BR")} · ${dt.toLocaleTimeString(
+                  "pt-BR",
+                  { hour: "2-digit", minute: "2-digit" }
+                )}`;
+
                 return (
-                  <li
-                    key={h.id}
-                    className="flex items-center justify-between px-4 py-3"
-                  >
-                    <span className="text-sm">
-                      {dt.toLocaleDateString("pt-BR")} ·{" "}
-                      {dt.toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <form action={removerHorario.bind(null, aluno.id, h.id)}>
-                      <button
-                        type="submit"
-                        className="text-xs text-bad hover:underline"
+                  <li key={h.id} className="px-4 py-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm">{dataHoraFmt}</span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                            h.status === "concluida"
+                              ? "bg-good/15 text-good"
+                              : h.status === "cancelada"
+                              ? "bg-bad/15 text-bad"
+                              : "bg-line/50 text-ink/60"
+                          }`}
+                        >
+                          {h.status}
+                        </span>
+                        <form action={removerHorario.bind(null, aluno.id, h.id)}>
+                          <button
+                            type="submit"
+                            className="text-xs text-bad hover:underline"
+                          >
+                            Remover
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+
+                    {h.status === "concluida" ? (
+                      <div className="mt-2 text-xs text-ink/60 space-y-0.5">
+                        <p>
+                          <span className="text-ink/40">Conteúdo:</span>{" "}
+                          {h.conteudo || "—"}
+                        </p>
+                        <p>
+                          <span className="text-ink/40">Exercício:</span>{" "}
+                          {h.exercicio || "—"}
+                        </p>
+                      </div>
+                    ) : (
+                      <form
+                        action={concluirAula.bind(null, aluno.id, h.id)}
+                        className="mt-2 flex flex-wrap gap-2"
                       >
-                        Remover
-                      </button>
-                    </form>
+                        <input
+                          name="conteudo"
+                          placeholder="Conteúdo dado"
+                          className="flex-1 min-w-[8rem] rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs"
+                        />
+                        <input
+                          name="exercicio"
+                          placeholder="Exercício passado"
+                          className="flex-1 min-w-[8rem] rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-lg bg-good/15 text-good px-3 py-1.5 text-xs font-semibold hover:bg-good hover:text-white transition-colors"
+                        >
+                          Marcar como concluída
+                        </button>
+                      </form>
+                    )}
                   </li>
                 );
               })}

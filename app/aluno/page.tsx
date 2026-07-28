@@ -28,6 +28,7 @@ export default async function AlunoPage({
         .from("aluno_horarios")
         .select("id, data_hora, aluno_id")
         .in("aluno_id", meusRegistroIds)
+        .neq("status", "cancelada")
         .gte("data_hora", inicioMes.toISOString())
         .lt("data_hora", fimMes.toISOString())
         .order("data_hora")
