@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { label: "Painel", href: "/professor" },
   { label: "Alunos", href: "/professor/alunos" },
   { label: "Agendamentos avulsos", href: "/professor/agendamentos" },
+  { label: "Cadastro", href: "/professor/cadastro" },
 ];
 
 function iniciais(nome?: string | null) {
