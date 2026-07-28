@@ -8,12 +8,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#22262B",
-        paper: "#FBF7F0",
-        accent: "#E85D4C",
-        accentSoft: "#FCE1D9",
-        accent2: "#1C8C82",
-        line: "#E8E1D3",
+        ink: "#2B2A33",
+        paper: "#FAF9FC",
+        accent: "#8874AE",
+        accentSoft: "#E2D8F8",
+        accentInk: "#665189",
+        line: "#E7E6EA",
         good: "#2E9E76",
         warn: "#CC8A2A",
         bad: "#D9503D",

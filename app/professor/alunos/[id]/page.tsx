@@ -31,6 +31,11 @@ export default async function AlunoPage({
     .eq("aluno_id", aluno.id)
     .order("data_hora");
 
+  const totalAulas = horarios?.length ?? 0;
+  const concluidas = horarios?.filter((h) => h.status === "concluida").length ?? 0;
+  const canceladas = horarios?.filter((h) => h.status === "cancelada").length ?? 0;
+  const taxaConclusao = totalAulas > 0 ? Math.round((concluidas / totalAulas) * 100) : 0;
+
   return (
     <main className="px-8 py-10">
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
@@ -40,6 +45,28 @@ export default async function AlunoPage({
 
       <div className="max-w-2xl space-y-10">
         <section>
+          <h2 className="font-display font-semibold text-lg mb-3">Relatório</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="border border-line rounded-xl p-4 bg-white">
+              <p className="text-[11px] uppercase tracking-wide text-ink/50">Aulas dadas</p>
+              <p className="font-display font-bold text-2xl mt-1 tabular-nums">{totalAulas}</p>
+            </div>
+            <div className="border border-line rounded-xl p-4 bg-white">
+              <p className="text-[11px] uppercase tracking-wide text-ink/50">Concluídas</p>
+              <p className="font-display font-bold text-2xl mt-1 tabular-nums text-good">{concluidas}</p>
+            </div>
+            <div className="border border-line rounded-xl p-4 bg-white">
+              <p className="text-[11px] uppercase tracking-wide text-ink/50">Canceladas</p>
+              <p className="font-display font-bold text-2xl mt-1 tabular-nums text-bad">{canceladas}</p>
+            </div>
+            <div className="border border-line rounded-xl p-4 bg-white">
+              <p className="text-[11px] uppercase tracking-wide text-ink/50">Taxa de conclusão</p>
+              <p className="font-display font-bold text-2xl mt-1 tabular-nums">{taxaConclusao}%</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="font-display font-semibold text-lg mb-3">Dados do aluno</h2>
           <form
             action={atualizarAluno.bind(null, aluno.id)}
@@ -47,7 +74,7 @@ export default async function AlunoPage({
           >
             <div className="sm:col-span-2">
               <label className="block text-sm mb-1" htmlFor="nome">
-                Nome
+                Nome <span className="text-bad">*</span>
               </label>
               <input
                 id="nome"

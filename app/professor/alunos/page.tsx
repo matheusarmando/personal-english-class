@@ -2,15 +2,29 @@ import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { criarAluno } from "./actions";
 
-export default async function AlunosPage() {
+export default async function AlunosPage({
+  searchParams,
+}: {
+  searchParams: { busca?: string; status?: string };
+}) {
   const profile = await getProfile();
   const supabase = createClient();
 
-  const { data: alunos } = await supabase
+  let query = supabase
     .from("alunos")
     .select("id, nome, email, telefone, ativo, status_pagamento")
-    .eq("professor_id", profile?.id)
-    .order("nome");
+    .eq("professor_id", profile?.id);
+
+  if (searchParams.busca) {
+    query = query.ilike("nome", `%${searchParams.busca}%`);
+  }
+  if (searchParams.status === "ativo") {
+    query = query.eq("ativo", true);
+  } else if (searchParams.status === "inativo") {
+    query = query.eq("ativo", false);
+  }
+
+  const { data: alunos } = await query.order("nome");
 
   return (
     <main className="px-8 py-10">
@@ -28,7 +42,7 @@ export default async function AlunosPage() {
           >
             <div className="sm:col-span-2">
               <label className="block text-sm mb-1" htmlFor="nome">
-                Nome
+                Nome <span className="text-bad">*</span>
               </label>
               <input
                 id="nome"
@@ -170,9 +184,48 @@ export default async function AlunosPage() {
 
         <section>
           <h2 className="font-display font-semibold text-lg mb-3">Meus alunos</h2>
+
+          <form
+            method="get"
+            className="flex flex-wrap gap-2 mb-3 bg-white border border-line rounded-xl p-3"
+          >
+            <input
+              type="search"
+              name="busca"
+              placeholder="Buscar por nome..."
+              defaultValue={searchParams.busca ?? ""}
+              className="flex-1 min-w-[10rem] rounded-lg border border-line bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+            <select
+              name="status"
+              defaultValue={searchParams.status ?? ""}
+              className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <option value="">Todos os status</option>
+              <option value="ativo">Ativos</option>
+              <option value="inativo">Inativos</option>
+            </select>
+            <button
+              type="submit"
+              className="rounded-lg border border-line px-3 py-1.5 text-sm font-semibold hover:border-accent transition-colors"
+            >
+              Filtrar
+            </button>
+            {(searchParams.busca || searchParams.status) && (
+              <Link
+                href="/professor/alunos"
+                className="rounded-lg px-3 py-1.5 text-sm text-ink/50 hover:text-ink transition-colors"
+              >
+                Limpar
+              </Link>
+            )}
+          </form>
+
           {!alunos || alunos.length === 0 ? (
             <p className="text-sm text-ink/60">
-              Nenhum aluno cadastrado ainda.
+              {searchParams.busca || searchParams.status
+                ? "Nenhum aluno encontrado com esse filtro."
+                : "Nenhum aluno cadastrado ainda."}
             </p>
           ) : (
             <ul className="divide-y divide-line border border-line rounded-xl overflow-hidden bg-white/60">

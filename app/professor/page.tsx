@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { criarAula } from "./actions";
 import ListaChamada from "@/components/ListaChamada";
 import CalendarioMensal from "@/components/CalendarioMensal";
+import WidgetCard from "@/components/WidgetCard";
+import EstadoVazio from "@/components/EstadoVazio";
+import { IconUsers, IconCalendar, IconWallet, IconGift, IconDocument, IconMegaphone } from "@/components/icons";
 import {
   chaveDia,
   resolverMesReferencia,
@@ -23,7 +27,9 @@ export default async function ProfessorPage({
 
   const { data: meusAlunos } = await supabase
     .from("alunos")
-    .select("id, nome, ativo, link_aula, valor, status_pagamento, pix_copia_cola")
+    .select(
+      "id, nome, ativo, link_aula, valor, dia_vencimento, data_nascimento, status_pagamento, pix_copia_cola"
+    )
     .eq("professor_id", profile?.id);
 
   const alunoIds = (meusAlunos ?? []).map((a) => a.id);
@@ -120,6 +126,41 @@ export default async function ProfessorPage({
 
   const aulasEssaSemana = (aulasSemanaHorarios ?? 0) + (aulasSemanaAvulsos ?? 0);
 
+  const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  const fimHoje = new Date(inicioHoje.getFullYear(), inicioHoje.getMonth(), inicioHoje.getDate() + 1);
+  const em7dias = new Date(inicioHoje.getFullYear(), inicioHoje.getMonth(), inicioHoje.getDate() + 7);
+
+  const { data: aulasHoje } = alunoIds.length
+    ? await supabase
+        .from("aluno_horarios")
+        .select("id, data_hora, aluno_id")
+        .in("aluno_id", alunoIds)
+        .neq("status", "cancelada")
+        .gte("data_hora", inicioHoje.toISOString())
+        .lt("data_hora", fimHoje.toISOString())
+        .order("data_hora")
+    : { data: [] };
+
+  const proximosVencimentos = (meusAlunos ?? [])
+    .filter((a) => a.ativo && a.status_pagamento !== "pago" && (a as any).dia_vencimento)
+    .sort((a: any, b: any) => a.dia_vencimento - b.dia_vencimento)
+    .slice(0, 5);
+
+  const { data: agendamentosProximos } = await supabase
+    .from("agendamentos_avulsos")
+    .select("id, nome, tipo, data_hora")
+    .eq("professor_id", profile?.id)
+    .gte("data_hora", inicioHoje.toISOString())
+    .lt("data_hora", em7dias.toISOString())
+    .order("data_hora")
+    .limit(5);
+
+  const mesAtual = hoje.getMonth();
+  const aniversariantes = (meusAlunos ?? []).filter((a: any) => {
+    if (!a.data_nascimento) return false;
+    return new Date(a.data_nascimento + "T00:00:00").getMonth() === mesAtual;
+  });
+
   const { data: turmas } = await supabase
     .from("turmas")
     .select("id, nome")
@@ -166,29 +207,32 @@ export default async function ProfessorPage({
       </div>
 
       <section className="grid grid-cols-3 gap-4 max-w-3xl mb-8">
-        <div className="border border-line rounded-xl p-4 bg-white">
-          <p className="text-[11px] uppercase tracking-wide text-ink/50">
-            Alunos ativos
-          </p>
-          <p className="font-display font-bold text-3xl mt-1 tabular-nums">
-            {alunosAtivos}
-          </p>
+        <div className="border border-line rounded-xl p-4 bg-white flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg bg-accentSoft text-accent flex items-center justify-center shrink-0">
+            <IconUsers />
+          </span>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-ink/50">Alunos ativos</p>
+            <p className="font-display font-bold text-2xl tabular-nums">{alunosAtivos}</p>
+          </div>
         </div>
-        <div className="border border-line rounded-xl p-4 bg-white">
-          <p className="text-[11px] uppercase tracking-wide text-ink/50">
-            Aulas essa semana
-          </p>
-          <p className="font-display font-bold text-3xl mt-1 tabular-nums">
-            {aulasEssaSemana}
-          </p>
+        <div className="border border-line rounded-xl p-4 bg-white flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg bg-accentSoft text-accent flex items-center justify-center shrink-0">
+            <IconCalendar />
+          </span>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-ink/50">Aulas essa semana</p>
+            <p className="font-display font-bold text-2xl tabular-nums">{aulasEssaSemana}</p>
+          </div>
         </div>
-        <div className="border border-line rounded-xl p-4 bg-white">
-          <p className="text-[11px] uppercase tracking-wide text-ink/50">
-            Pagamentos pendentes
-          </p>
-          <p className="font-display font-bold text-3xl mt-1 tabular-nums text-warn">
-            {pagamentosPendentes}
-          </p>
+        <div className="border border-line rounded-xl p-4 bg-white flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg bg-warn/15 text-warn flex items-center justify-center shrink-0">
+            <IconWallet />
+          </span>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-ink/50">Pagamentos pendentes</p>
+            <p className="font-display font-bold text-2xl tabular-nums text-warn">{pagamentosPendentes}</p>
+          </div>
         </div>
       </section>
 
@@ -199,6 +243,123 @@ export default async function ProfessorPage({
           aulasPorDia={aulasPorDia}
           baseHref="/professor"
         />
+      </section>
+
+      <section className="max-w-3xl mb-10 grid sm:grid-cols-3 gap-4">
+        <WidgetCard titulo="Aulas de hoje">
+          {!aulasHoje || aulasHoje.length === 0 ? (
+            <EstadoVazio texto="Nenhuma aula hoje." />
+          ) : (
+            <ul className="space-y-1.5">
+              {aulasHoje.map((h) => (
+                <li
+                  key={h.id}
+                  className="flex items-center justify-between text-sm bg-paper rounded-lg px-3 py-2"
+                >
+                  <span className="font-medium truncate">
+                    {dadosPorAlunoId.get(h.aluno_id)?.nome ?? "Aluno"}
+                  </span>
+                  <span className="tabular-nums text-ink/50 shrink-0">
+                    {new Date(h.data_hora).toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </WidgetCard>
+
+        <WidgetCard titulo="Próximos vencimentos">
+          {proximosVencimentos.length === 0 ? (
+            <EstadoVazio texto="Nenhum vencimento pendente." />
+          ) : (
+            <ul className="space-y-1.5">
+              {proximosVencimentos.map((a: any) => (
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between text-sm bg-paper rounded-lg px-3 py-2"
+                >
+                  <span className="font-medium truncate">{a.nome}</span>
+                  <span className="tabular-nums text-ink/50 shrink-0">dia {a.dia_vencimento}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </WidgetCard>
+
+        <WidgetCard titulo="Agendamentos avulsos">
+          {!agendamentosProximos || agendamentosProximos.length === 0 ? (
+            <EstadoVazio texto="Nada nos próximos 7 dias." />
+          ) : (
+            <ul className="space-y-1.5">
+              {agendamentosProximos.map((a) => (
+                <li key={a.id} className="text-sm bg-paper rounded-lg px-3 py-2">
+                  <p className="font-medium truncate">{a.nome}</p>
+                  <p className="text-xs text-ink/50">
+                    {LABEL_TIPO_AGENDAMENTO[a.tipo] ?? a.tipo} ·{" "}
+                    {new Date(a.data_hora).toLocaleDateString("pt-BR")}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </WidgetCard>
+      </section>
+
+      <section className="max-w-3xl mb-10 grid sm:grid-cols-3 gap-4">
+        <WidgetCard titulo="Aniversariantes do mês">
+          {aniversariantes.length === 0 ? (
+            <EstadoVazio texto="Ninguém faz aniversário este mês." />
+          ) : (
+            <ul className="space-y-1.5">
+              {aniversariantes.map((a: any) => (
+                <li
+                  key={a.id}
+                  className="flex items-center gap-2.5 text-sm bg-paper rounded-lg px-3 py-2"
+                >
+                  <IconGift className="text-accent shrink-0" />
+                  <span className="font-medium truncate flex-1">{a.nome}</span>
+                  <span className="tabular-nums text-ink/50 shrink-0">
+                    {new Date(a.data_nascimento + "T00:00:00").toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "short",
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </WidgetCard>
+
+        <WidgetCard
+          titulo="Tarefas"
+          acao={
+            <Link href="/professor/tarefas" className="text-xs font-semibold text-accent hover:underline">
+              Ver tudo
+            </Link>
+          }
+        >
+          <div className="h-full min-h-[6rem] flex flex-col items-center justify-center text-center gap-2">
+            <IconDocument className="text-ink/30" />
+            <p className="text-sm text-ink/50">Acompanhe entregas pendentes de avaliação.</p>
+          </div>
+        </WidgetCard>
+
+        <WidgetCard
+          titulo="Avisos"
+          acao={
+            <Link href="/professor/avisos" className="text-xs font-semibold text-accent hover:underline">
+              Ver tudo
+            </Link>
+          }
+        >
+          <div className="h-full min-h-[6rem] flex flex-col items-center justify-center text-center gap-2">
+            <IconMegaphone className="text-ink/30" />
+            <p className="text-sm text-ink/50">Publique um comunicado pros seus alunos.</p>
+          </div>
+        </WidgetCard>
       </section>
 
       {!primeiraTurma ? (
