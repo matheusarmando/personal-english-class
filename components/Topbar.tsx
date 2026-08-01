@@ -42,7 +42,7 @@ export default function Topbar({
           </button>
         )}
         <Link href="/" className="font-display font-bold text-base tracking-tight">
-          Personal English Class
+          Personal Class
         </Link>
       </div>
 

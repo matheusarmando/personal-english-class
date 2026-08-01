@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Personal English Class",
+  title: "Personal Class",
   description: "Controle de aulas: turmas, presença e acompanhamento.",
 };
 

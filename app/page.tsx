@@ -57,7 +57,7 @@ const FAQ = [
   {
     pergunta: "Preciso saber mexer em tecnologia?",
     resposta:
-      "Não. Se você usa WhatsApp, usa a Personal English Class. O cadastro leva cinco minutos.",
+      "Não. Se você usa WhatsApp, usa a Personal Class. O cadastro leva cinco minutos.",
   },
   {
     pergunta: "Como funciona a integração com o WhatsApp?",
@@ -82,9 +82,9 @@ export default function LandingPage() {
       <header className={styles.siteHeader}>
         <div className={styles.wrap}>
           <Link className={styles.logo} href="#topo">
-            <span className={styles.mark}>PE</span>
+            <span className={styles.mark}>PC</span>
             <span>
-              Personal<span className={styles.muted}> English Class</span>
+              Personal<span className={styles.muted}> Class</span>
             </span>
           </Link>
           <nav className={styles.nav}>
@@ -271,8 +271,8 @@ export default function LandingPage() {
       <footer className={styles.siteFooter}>
         <div className={styles.wrap}>
           <div className={styles.footBrand}>
-            <span className={styles.mark}>PE</span>
-            <span>© 2026 Personal English Class</span>
+            <span className={styles.mark}>PC</span>
+            <span>© 2026 Personal Class</span>
           </div>
         </div>
       </footer>
