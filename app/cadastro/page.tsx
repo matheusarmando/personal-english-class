@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+type Papel = "professor" | "aluno";
+
 export default function CadastroPage() {
   const router = useRouter();
+  const [papel, setPapel] = useState<Papel>("professor");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +35,7 @@ export default function CadastroPage() {
       email,
       password,
       options: {
-        data: { nome },
+        data: { nome, role_solicitado: papel },
       },
     });
 
@@ -50,7 +53,7 @@ export default function CadastroPage() {
       return;
     }
 
-    router.push("/aluno");
+    router.push(`/${papel}`);
     router.refresh();
   }
 
@@ -62,8 +65,35 @@ export default function CadastroPage() {
       >
         <h1 className="font-display font-semibold text-2xl mb-1">Criar conta</h1>
         <p className="text-sm text-ink/60 mb-6">
-          Cadastre-se para acessar sua área de aluno.
+          {papel === "professor"
+            ? "Cadastre-se para começar a organizar suas aulas."
+            : "Cadastre-se para acessar sua área de aluno."}
         </p>
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => setPapel("professor")}
+            className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+              papel === "professor"
+                ? "border-accent bg-accentSoft text-ink"
+                : "border-line text-ink/60 hover:border-accent"
+            }`}
+          >
+            Sou professor
+          </button>
+          <button
+            type="button"
+            onClick={() => setPapel("aluno")}
+            className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+              papel === "aluno"
+                ? "border-accent bg-accentSoft text-ink"
+                : "border-line text-ink/60 hover:border-accent"
+            }`}
+          >
+            Sou aluno
+          </button>
+        </div>
 
         <label className="block text-sm mb-1" htmlFor="nome">
           Nome

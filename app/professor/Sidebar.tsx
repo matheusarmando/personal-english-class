@@ -13,6 +13,7 @@ import {
   IconUser,
   IconChevron,
   IconSearch,
+  IconLink,
 } from "@/components/icons";
 
 type NavLink = { label: string; href: string };
@@ -56,6 +57,7 @@ const NAV: NavEntry[] = [
       { label: "Calendário letivo", href: "/professor/calendario-letivo" },
     ],
   },
+  { type: "link", label: "Página pública", href: "/professor/pagina-publica", icon: IconLink },
   { type: "link", label: "WhatsApp", href: "/professor/whatsapp", icon: IconWhatsapp },
   { type: "link", label: "Cadastro", href: "/professor/cadastro", icon: IconUser },
 ];
