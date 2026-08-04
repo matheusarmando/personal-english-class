@@ -6,14 +6,20 @@ import { chaveDia, type AulaDoDia } from "@/lib/calendario";
 
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+// Tudo aqui em UTC de propósito — ver o comentário de chaveDia em
+// lib/calendario.ts. mesRef chega do servidor como meia-noite UTC do
+// dia 1; ler com getFullYear/getMonth (hora local do navegador)
+// deslocava o mês inteiro pra trás em fusos atrás de UTC (ex.: Brasília).
 function construirSemanas(mesRef: Date) {
-  const primeiroDia = new Date(mesRef.getFullYear(), mesRef.getMonth(), 1);
-  const ultimoDia = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 0);
+  const ano = mesRef.getUTCFullYear();
+  const mes = mesRef.getUTCMonth();
+  const primeiroDia = new Date(Date.UTC(ano, mes, 1));
+  const ultimoDia = new Date(Date.UTC(ano, mes + 1, 0));
 
   const dias: (Date | null)[] = [];
-  for (let i = 0; i < primeiroDia.getDay(); i++) dias.push(null);
-  for (let d = 1; d <= ultimoDia.getDate(); d++) {
-    dias.push(new Date(mesRef.getFullYear(), mesRef.getMonth(), d));
+  for (let i = 0; i < primeiroDia.getUTCDay(); i++) dias.push(null);
+  for (let d = 1; d <= ultimoDia.getUTCDate(); d++) {
+    dias.push(new Date(Date.UTC(ano, mes, d)));
   }
   while (dias.length % 7 !== 0) dias.push(null);
 
@@ -23,8 +29,8 @@ function construirSemanas(mesRef: Date) {
 }
 
 function mesHref(baseHref: string, mesRef: Date, offset: number) {
-  const alvo = new Date(mesRef.getFullYear(), mesRef.getMonth() + offset, 1);
-  const valor = `${alvo.getFullYear()}-${String(alvo.getMonth() + 1).padStart(2, "0")}`;
+  const alvo = new Date(Date.UTC(mesRef.getUTCFullYear(), mesRef.getUTCMonth() + offset, 1));
+  const valor = `${alvo.getUTCFullYear()}-${String(alvo.getUTCMonth() + 1).padStart(2, "0")}`;
   return `${baseHref}?mes=${valor}`;
 }
 
@@ -52,6 +58,7 @@ export default function CalendarioMensal({
   const tituloMes = mesRef.toLocaleDateString("pt-BR", {
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   });
 
   return (
@@ -104,7 +111,7 @@ export default function CalendarioMensal({
                         ehHoje ? "bg-ink text-paper" : "text-ink/60"
                       }`}
                     >
-                      {dia.getDate()}
+                      {dia.getUTCDate()}
                     </span>
                     <div className="mt-1 space-y-0.5">
                       {aulas.slice(0, 3).map((a) => (
@@ -174,6 +181,7 @@ export default function CalendarioMensal({
                     day: "2-digit",
                     month: "long",
                     year: "numeric",
+                    timeZone: "UTC",
                   })}
                 </dd>
               </div>
