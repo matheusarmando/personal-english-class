@@ -28,18 +28,24 @@ export async function GET(request: Request) {
   const resultado = { lembretes: 0, resumos: 0, cobrancas: 0, falhas: 0 };
 
   const agora = new Date();
-  const em2h = new Date(agora.getTime() + 2 * 60 * 60 * 1000);
+  const inicioHoje = new Date(agora);
+  inicioHoje.setHours(0, 0, 0, 0);
+  const fimHoje = new Date(agora);
+  fimHoje.setHours(23, 59, 59, 999);
   const tresDiasAtras = new Date(agora.getTime() - 3 * 24 * 60 * 60 * 1000);
 
-  // ---- lembretes de aula (próximas 2h) ----
+  // ---- lembretes de aula (todas as aulas de hoje) ----
+  // Roda 1x por dia (limite do plano Hobby da Vercel para cron jobs),
+  // então o lembrete cobre o dia inteiro em vez de uma janela de poucas
+  // horas antes da aula.
   const { data: horarios } = await supabase
     .from("aluno_horarios")
     .select(
       `id, data_hora, aluno_id, alunos(nome, telefone, link_aula, professor_id, ${FK_PROFESSOR}(nome, whatsapp_ativo))`
     )
     .eq("status", "agendada")
-    .gte("data_hora", agora.toISOString())
-    .lte("data_hora", em2h.toISOString());
+    .gte("data_hora", inicioHoje.toISOString())
+    .lte("data_hora", fimHoje.toISOString());
 
   for (const h of horarios ?? []) {
     const aluno: any = h.alunos;
