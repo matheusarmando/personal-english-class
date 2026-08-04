@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconUser, IconDashboard } from "@/components/icons";
+import { IconUser, IconDashboard, IconWallet } from "@/components/icons";
 
 const NAV_ITEMS = [
-  { label: "Cadastro", href: "/aluno/cadastro", icon: IconUser },
   { label: "Painel", href: "/aluno", icon: IconDashboard },
+  { label: "Financeiro", href: "/aluno/financeiro", icon: IconWallet },
+  { label: "Cadastro", href: "/aluno/cadastro", icon: IconUser },
 ];
 
 export default function Sidebar({ colapsada = false }: { colapsada?: boolean }) {

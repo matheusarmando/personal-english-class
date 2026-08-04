@@ -23,6 +23,18 @@ export const TEMPLATE_COBRANCA = {
     "Olá {{1}}! Sua mensalidade vence amanhã.\n\nValor: {{2}}\n\nPix copia e cola:\n{{3}}",
 };
 
+export const TEMPLATE_PARCELA_LEMBRETE = {
+  nome: "parcela_lembrete",
+  corpoParaAprovacao:
+    "Olá {{1}}! 👋\nSua parcela de {{2}} vence em {{3}}.\n\nPix copia e cola:\n{{4}}",
+};
+
+export const TEMPLATE_PARCELA_ATRASO = {
+  nome: "parcela_atraso",
+  corpoParaAprovacao:
+    "Olá {{1}}! Sua parcela de {{2}} está atrasada desde {{3}}.\n\nPix copia e cola:\n{{4}}",
+};
+
 export function renderizarLembreteAula(params: {
   aluno: string;
   professor: string;
@@ -45,4 +57,22 @@ export function renderizarCobranca(params: {
   pix: string;
 }) {
   return `Olá ${params.aluno}! Sua mensalidade vence amanhã.\n\nValor: ${params.valor}\n\nPix copia e cola:\n${params.pix}`;
+}
+
+export function renderizarParcelaLembrete(params: {
+  aluno: string;
+  valor: string;
+  vencimento: string;
+  pix: string;
+}) {
+  return `Olá ${params.aluno}! 👋\nSua parcela de ${params.valor} vence em ${params.vencimento}.\n\nPix copia e cola:\n${params.pix}`;
+}
+
+export function renderizarParcelaAtraso(params: {
+  aluno: string;
+  valor: string;
+  vencimento: string;
+  pix: string;
+}) {
+  return `Olá ${params.aluno}! Sua parcela de ${params.valor} está atrasada desde ${params.vencimento}.\n\nPix copia e cola:\n${params.pix}`;
 }

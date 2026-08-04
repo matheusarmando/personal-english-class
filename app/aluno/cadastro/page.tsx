@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { atualizarMeuCadastro } from "./actions";
 
@@ -7,9 +8,7 @@ export default async function CadastroAlunoPage() {
 
   const { data: aluno } = await supabase
     .from("alunos")
-    .select(
-      "id, nome, email, telefone, data_nascimento, link_aula, valor, status_pagamento, ativo, pix_copia_cola"
-    )
+    .select("id, nome, email, telefone, data_nascimento, link_aula, ativo")
     .eq("profile_id", profile?.id)
     .maybeSingle();
 
@@ -110,50 +109,20 @@ export default async function CadastroAlunoPage() {
                 </dd>
               </div>
 
-              <div>
-                <dt className="text-xs text-ink/50 mb-0.5">
-                  Status de pagamento
-                </dt>
-                <dd>
-                  <span
-                    className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                      aluno.status_pagamento === "pago"
-                        ? "bg-good/15 text-good"
-                        : aluno.status_pagamento === "atrasado"
-                        ? "bg-bad/15 text-bad"
-                        : "bg-warn/15 text-warn"
-                    }`}
-                  >
-                    {aluno.status_pagamento}
-                  </span>
-                </dd>
-              </div>
-
-              <div>
-                <dt className="text-xs text-ink/50 mb-0.5">Valor da aula</dt>
-                <dd>
-                  {aluno.valor != null
-                    ? aluno.valor.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })
-                    : "—"}
-                </dd>
-              </div>
-
               <div className="sm:col-span-2">
                 <dt className="text-xs text-ink/50 mb-0.5">Link da aula</dt>
                 <dd className="truncate">{aluno.link_aula ?? "—"}</dd>
               </div>
-
-              <div className="sm:col-span-2">
-                <dt className="text-xs text-ink/50 mb-0.5">
-                  PIX copia e cola
-                </dt>
-                <dd className="break-all">{aluno.pix_copia_cola ?? "—"}</dd>
-              </div>
             </dl>
           </section>
+
+          <p className="text-sm text-ink/60">
+            Contrato, parcelas e comprovantes agora ficam em{" "}
+            <Link href="/aluno/financeiro" className="text-accent font-medium hover:underline">
+              Financeiro
+            </Link>
+            .
+          </p>
         </div>
       )}
     </main>

@@ -4,7 +4,9 @@ import { atualizarConfigWhatsapp } from "./actions";
 const LABEL_TIPO: Record<string, string> = {
   lembrete_aula: "Lembrete de aula",
   resumo_aula: "Resumo pós-aula",
-  cobranca: "Cobrança",
+  cobranca: "Cobrança (legado)",
+  parcela_lembrete: "Lembrete de parcela",
+  parcela_atraso: "Parcela atrasada",
 };
 
 export default async function WhatsappPage() {
@@ -67,6 +69,21 @@ export default async function WhatsappPage() {
               <label className="text-sm" htmlFor="whatsapp_ativo">
                 Enviar lembretes, resumos e cobranças automaticamente
               </label>
+            </div>
+
+            <div>
+              <label className="block text-sm mb-1" htmlFor="financeiro_dias_lembrete">
+                Avisar parcela a vencer com quantos dias de antecedência
+              </label>
+              <input
+                id="financeiro_dias_lembrete"
+                name="financeiro_dias_lembrete"
+                type="number"
+                min="0"
+                max="30"
+                defaultValue={profile?.financeiro_dias_lembrete ?? 3}
+                className="w-24 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              />
             </div>
 
             <button

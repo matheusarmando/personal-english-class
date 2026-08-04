@@ -44,7 +44,7 @@ export async function getProfile() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, nome, role, telefone, data_nascimento, whatsapp_ativo")
+    .select("id, nome, role, telefone, data_nascimento, whatsapp_ativo, financeiro_dias_lembrete")
     .eq("id", user.id)
     .single();
 
@@ -60,6 +60,7 @@ export async function getProfile() {
     telefone: string | null;
     data_nascimento: string | null;
     whatsapp_ativo: boolean;
+    financeiro_dias_lembrete: number;
     email: string | null;
   };
 }

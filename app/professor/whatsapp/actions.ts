@@ -9,10 +9,11 @@ export async function atualizarConfigWhatsapp(formData: FormData) {
 
   const supabase = createClient();
   const ativo = formData.get("whatsapp_ativo") === "on";
+  const diasLembrete = Number(formData.get("financeiro_dias_lembrete") ?? 3);
 
   await supabase
     .from("profiles")
-    .update({ whatsapp_ativo: ativo })
+    .update({ whatsapp_ativo: ativo, financeiro_dias_lembrete: diasLembrete })
     .eq("id", profile.id);
 
   revalidatePath("/professor/whatsapp");

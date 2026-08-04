@@ -3,9 +3,6 @@ export type AulaDoDia = {
   hora: string;
   titulo: string;
   linkAula?: string | null;
-  valor?: number | null;
-  statusPagamento?: string | null;
-  pixCopiaCola?: string | null;
   observacoes?: string | null;
   contato?: string | null;
 };
