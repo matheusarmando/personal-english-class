@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -43,61 +43,69 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-paper text-ink flex items-center justify-center px-6">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white/70 border border-line rounded-xl p-8"
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-sm bg-white/70 border border-line rounded-xl p-8"
+    >
+      <h1 className="font-display font-semibold text-2xl mb-1">Entrar</h1>
+      <p className="text-sm text-ink/60 mb-6">
+        Acesse sua área: aluno, professor ou gestão.
+      </p>
+
+      <label className="block text-sm mb-1" htmlFor="email">
+        E-mail
+      </label>
+      <input
+        id="email"
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full mb-4 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+      />
+
+      <label className="block text-sm mb-1" htmlFor="password">
+        Senha
+      </label>
+      <input
+        id="password"
+        type="password"
+        required
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="w-full mb-6 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+      />
+
+      {error && (
+        <p className="text-sm text-bad mb-4" role="alert">
+          {error}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full rounded-lg bg-accent text-white py-2.5 text-sm font-semibold hover:-translate-y-px transition-transform disabled:opacity-50 disabled:hover:translate-y-0"
       >
-        <h1 className="font-display font-semibold text-2xl mb-1">Entrar</h1>
-        <p className="text-sm text-ink/60 mb-6">
-          Acesse sua área: aluno, professor ou gestão.
-        </p>
+        {loading ? "Entrando..." : "Entrar"}
+      </button>
 
-        <label className="block text-sm mb-1" htmlFor="email">
-          E-mail
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+      <p className="text-sm text-ink/60 mt-4 text-center">
+        Ainda não tem conta?{" "}
+        <Link href="/cadastro" className="text-accent font-medium">
+          Cadastre-se
+        </Link>
+      </p>
+    </form>
+  );
+}
 
-        <label className="block text-sm mb-1" htmlFor="password">
-          Senha
-        </label>
-        <input
-          id="password"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-6 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
-
-        {error && (
-          <p className="text-sm text-bad mb-4" role="alert">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-accent text-white py-2.5 text-sm font-semibold hover:-translate-y-px transition-transform disabled:opacity-50 disabled:hover:translate-y-0"
-        >
-          {loading ? "Entrando..." : "Entrar"}
-        </button>
-
-        <p className="text-sm text-ink/60 mt-4 text-center">
-          Ainda não tem conta?{" "}
-          <Link href="/cadastro" className="text-accent font-medium">
-            Cadastre-se
-          </Link>
-        </p>
-      </form>
+export default function LoginPage() {
+  return (
+    <main className="min-h-screen bg-paper text-ink flex items-center justify-center px-6">
+      <Suspense fallback={null}>
+        <LoginForm />
+      </Suspense>
     </main>
   );
 }
