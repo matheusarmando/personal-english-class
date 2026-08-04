@@ -5,6 +5,7 @@ import ListaChamada from "@/components/ListaChamada";
 import CalendarioMensal from "@/components/CalendarioMensal";
 import WidgetCard from "@/components/WidgetCard";
 import EstadoVazio from "@/components/EstadoVazio";
+import WidgetNotificacoes from "@/components/WidgetNotificacoes";
 import { IconUsers, IconCalendar, IconWallet, IconGift, IconDocument, IconMegaphone } from "@/components/icons";
 import {
   chaveDia,
@@ -12,6 +13,7 @@ import {
   LABEL_TIPO_AGENDAMENTO,
   type AulaDoDia,
 } from "@/lib/calendario";
+import { statusEfetivo } from "@/lib/financeiro/status";
 
 export default async function ProfessorPage({
   searchParams,
@@ -27,9 +29,7 @@ export default async function ProfessorPage({
 
   const { data: meusAlunos } = await supabase
     .from("alunos")
-    .select(
-      "id, nome, ativo, link_aula, valor, dia_vencimento, data_nascimento, status_pagamento, pix_copia_cola"
-    )
+    .select("id, nome, ativo, link_aula, data_nascimento")
     .eq("professor_id", profile?.id);
 
   const alunoIds = (meusAlunos ?? []).map((a) => a.id);
@@ -60,9 +60,6 @@ export default async function ProfessorPage({
       hora,
       titulo: aluno?.nome ?? "Aluno",
       linkAula: aluno?.link_aula,
-      valor: aluno?.valor,
-      statusPagamento: aluno?.status_pagamento,
-      pixCopiaCola: aluno?.pix_copia_cola,
     });
   }
 
@@ -92,9 +89,6 @@ export default async function ProfessorPage({
   }
 
   const alunosAtivos = (meusAlunos ?? []).filter((a) => a.ativo).length;
-  const pagamentosPendentes = (meusAlunos ?? []).filter(
-    (a) => a.ativo && a.status_pagamento !== "pago"
-  ).length;
 
   const hoje = new Date();
   const inicioSemana = new Date(
@@ -141,10 +135,36 @@ export default async function ProfessorPage({
         .order("data_hora")
     : { data: [] };
 
-  const proximosVencimentos = (meusAlunos ?? [])
-    .filter((a) => a.ativo && a.status_pagamento !== "pago" && (a as any).dia_vencimento)
-    .sort((a: any, b: any) => a.dia_vencimento - b.dia_vencimento)
-    .slice(0, 5);
+  const { data: contratosProfessor } = await supabase
+    .from("contratos")
+    .select("id")
+    .eq("professor_id", profile?.id);
+  const contratoIdsProfessor = (contratosProfessor ?? []).map((c) => c.id);
+
+  const { data: parcelasFinanceiro } = contratoIdsProfessor.length
+    ? await supabase
+        .from("parcelas")
+        .select("id, valor_centavos, vencimento, status, contratos(alunos(nome))")
+        .in("contrato_id", contratoIdsProfessor)
+        .eq("status", "pendente")
+        .order("vencimento")
+    : { data: [] };
+
+  const parcelasComStatusEfetivo = (parcelasFinanceiro ?? []).map((p: any) => ({
+    ...p,
+    efetivo: statusEfetivo({ status: p.status, vencimento: p.vencimento }, hoje),
+  }));
+
+  const pagamentosPendentes = parcelasComStatusEfetivo.filter((p) => p.efetivo === "atrasada").length;
+  const proximosVencimentos = parcelasComStatusEfetivo.filter((p) => p.efetivo === "pendente").slice(0, 5);
+
+  const { data: notificacoes } = await supabase
+    .from("notificacoes")
+    .select("id, titulo, mensagem")
+    .eq("destinatario_id", profile?.id)
+    .eq("lida", false)
+    .order("created_at", { ascending: false })
+    .limit(5);
 
   const { data: agendamentosProximos } = await supabase
     .from("agendamentos_avulsos")
@@ -271,18 +291,27 @@ export default async function ProfessorPage({
           )}
         </WidgetCard>
 
-        <WidgetCard titulo="Próximos vencimentos">
+        <WidgetCard
+          titulo="Próximos vencimentos"
+          acao={
+            <Link href="/professor/financeiro" className="text-xs font-semibold text-accent hover:underline">
+              Ver tudo
+            </Link>
+          }
+        >
           {proximosVencimentos.length === 0 ? (
             <EstadoVazio texto="Nenhum vencimento pendente." />
           ) : (
             <ul className="space-y-1.5">
-              {proximosVencimentos.map((a: any) => (
+              {proximosVencimentos.map((p: any) => (
                 <li
-                  key={a.id}
+                  key={p.id}
                   className="flex items-center justify-between text-sm bg-paper rounded-lg px-3 py-2"
                 >
-                  <span className="font-medium truncate">{a.nome}</span>
-                  <span className="tabular-nums text-ink/50 shrink-0">dia {a.dia_vencimento}</span>
+                  <span className="font-medium truncate">{p.contratos?.alunos?.nome ?? "—"}</span>
+                  <span className="tabular-nums text-ink/50 shrink-0">
+                    {new Date(p.vencimento).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -309,6 +338,8 @@ export default async function ProfessorPage({
       </section>
 
       <section className="max-w-3xl mb-10 grid sm:grid-cols-3 gap-4">
+        <WidgetNotificacoes notificacoes={notificacoes ?? []} />
+
         <WidgetCard titulo="Aniversariantes do mês">
           {aniversariantes.length === 0 ? (
             <EstadoVazio texto="Ninguém faz aniversário este mês." />

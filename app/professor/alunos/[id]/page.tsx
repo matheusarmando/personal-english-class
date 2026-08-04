@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -17,9 +18,7 @@ export default async function AlunoPage({
 
   const { data: aluno } = await supabase
     .from("alunos")
-    .select(
-      "id, nome, email, telefone, data_nascimento, link_aula, valor, dia_vencimento, status_pagamento, ativo, pix_copia_cola"
-    )
+    .select("id, nome, email, telefone, data_nascimento, link_aula, ativo")
     .eq("id", params.id)
     .single();
 
@@ -41,7 +40,15 @@ export default async function AlunoPage({
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do professor
       </p>
-      <h1 className="font-display font-semibold text-3xl mb-8">{aluno.nome}</h1>
+      <div className="flex items-baseline justify-between mb-8">
+        <h1 className="font-display font-semibold text-3xl">{aluno.nome}</h1>
+        <Link
+          href={`/professor/financeiro/contratos?aluno=${encodeURIComponent(aluno.nome)}`}
+          className="text-sm font-semibold text-accent hover:underline"
+        >
+          Ver contratos financeiros
+        </Link>
+      </div>
 
       <div className="max-w-2xl space-y-10">
         <section>
@@ -134,66 +141,6 @@ export default async function AlunoPage({
                 type="url"
                 placeholder="https://meet.google.com/..."
                 defaultValue={aluno.link_aula ?? ""}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="valor">
-                Valor a pagar (R$)
-              </label>
-              <input
-                id="valor"
-                name="valor"
-                type="number"
-                step="0.01"
-                min="0"
-                defaultValue={aluno.valor ?? ""}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="status_pagamento">
-                Status de pagamento
-              </label>
-              <select
-                id="status_pagamento"
-                name="status_pagamento"
-                defaultValue={aluno.status_pagamento}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value="pendente">Pendente</option>
-                <option value="pago">Pago</option>
-                <option value="atrasado">Atrasado</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="dia_vencimento">
-                Dia do vencimento
-              </label>
-              <input
-                id="dia_vencimento"
-                name="dia_vencimento"
-                type="number"
-                min="1"
-                max="31"
-                placeholder="Ex.: 10"
-                defaultValue={aluno.dia_vencimento ?? ""}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-sm mb-1" htmlFor="pix_copia_cola">
-                PIX copia e cola
-              </label>
-              <textarea
-                id="pix_copia_cola"
-                name="pix_copia_cola"
-                rows={2}
-                defaultValue={aluno.pix_copia_cola ?? ""}
                 className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               />
             </div>

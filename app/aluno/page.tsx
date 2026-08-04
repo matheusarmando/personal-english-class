@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import CalendarioMensal from "@/components/CalendarioMensal";
+import WidgetNotificacoes from "@/components/WidgetNotificacoes";
 import { chaveDia, resolverMesReferencia, type AulaDoDia } from "@/lib/calendario";
 
 export default async function AlunoPage({
@@ -16,7 +18,7 @@ export default async function AlunoPage({
 
   const { data: meuRegistroAluno } = await supabase
     .from("alunos")
-    .select("id, link_aula, valor, status_pagamento, pix_copia_cola")
+    .select("id, link_aula")
     .eq("profile_id", profile?.id);
 
   const meusRegistros = meuRegistroAluno ?? [];
@@ -47,9 +49,6 @@ export default async function AlunoPage({
       hora,
       titulo: "Aula agendada",
       linkAula: registro?.link_aula,
-      valor: registro?.valor,
-      statusPagamento: registro?.status_pagamento,
-      pixCopiaCola: registro?.pix_copia_cola,
     });
   }
 
@@ -59,12 +58,29 @@ export default async function AlunoPage({
     .eq("aluno_id", profile?.id)
     .order("created_at", { ascending: false });
 
+  const { data: notificacoes } = await supabase
+    .from("notificacoes")
+    .select("id, titulo, mensagem")
+    .eq("destinatario_id", profile?.id)
+    .eq("lida", false)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   return (
     <main className="px-8 py-10">
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
         Área do aluno
       </p>
-      <h1 className="font-display font-semibold text-3xl mb-8">Olá, {profile?.nome}</h1>
+      <div className="flex items-baseline justify-between mb-8">
+        <h1 className="font-display font-semibold text-3xl">Olá, {profile?.nome}</h1>
+        <Link href="/aluno/financeiro" className="text-sm font-semibold text-accent hover:underline">
+          Ver financeiro
+        </Link>
+      </div>
+
+      <section className="max-w-3xl mb-8">
+        <WidgetNotificacoes notificacoes={notificacoes ?? []} />
+      </section>
 
       <section className="max-w-3xl mb-10">
         <h2 className="font-display font-semibold text-lg mb-3">Minhas aulas do mês</h2>

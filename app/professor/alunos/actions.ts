@@ -5,20 +5,13 @@ import { redirect } from "next/navigation";
 import { createClient, getProfile } from "@/lib/supabase/server";
 
 function lerDadosAluno(formData: FormData) {
-  const valor = formData.get("valor") as string;
-  const diaVencimento = formData.get("dia_vencimento") as string;
-
   return {
     nome: formData.get("nome") as string,
     email: (formData.get("email") as string) || null,
     telefone: (formData.get("telefone") as string) || null,
     data_nascimento: (formData.get("data_nascimento") as string) || null,
     link_aula: (formData.get("link_aula") as string) || null,
-    valor: valor ? Number(valor) : null,
-    dia_vencimento: diaVencimento ? Number(diaVencimento) : null,
-    status_pagamento: (formData.get("status_pagamento") as string) || "pendente",
     ativo: formData.get("ativo") === "on",
-    pix_copia_cola: (formData.get("pix_copia_cola") as string) || null,
   };
 }
 

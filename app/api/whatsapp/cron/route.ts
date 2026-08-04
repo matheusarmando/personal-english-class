@@ -4,11 +4,14 @@ import { enviarTemplateWhatsapp } from "@/lib/whatsapp/client";
 import {
   TEMPLATE_LEMBRETE_AULA,
   TEMPLATE_RESUMO_AULA,
-  TEMPLATE_COBRANCA,
+  TEMPLATE_PARCELA_LEMBRETE,
+  TEMPLATE_PARCELA_ATRASO,
   renderizarLembreteAula,
   renderizarResumoAula,
-  renderizarCobranca,
+  renderizarParcelaLembrete,
+  renderizarParcelaAtraso,
 } from "@/lib/whatsapp/templates";
+import { decidirNotificacoes, type ParcelaParaNotificar } from "@/lib/financeiro/notificacoes";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +21,7 @@ function autorizado(request: Request) {
 }
 
 const FK_PROFESSOR = "profiles!alunos_professor_id_fkey";
+const FK_PROFESSOR_CONTRATO = "profiles!contratos_professor_id_fkey";
 
 export async function GET(request: Request) {
   if (!autorizado(request)) {
@@ -25,7 +29,7 @@ export async function GET(request: Request) {
   }
 
   const supabase = createAdminClient();
-  const resultado = { lembretes: 0, resumos: 0, cobrancas: 0, falhas: 0 };
+  const resultado = { lembretes: 0, resumos: 0, financeiro: 0, notificacoes: 0, falhas: 0 };
 
   const agora = new Date();
   const inicioHoje = new Date(agora);
@@ -145,67 +149,116 @@ export async function GET(request: Request) {
     envio.ok ? resultado.resumos++ : resultado.falhas++;
   }
 
-  // ---- cobrança (mensalidade vence amanhã) ----
-  const amanha = new Date(agora.getTime() + 24 * 60 * 60 * 1000);
-  const diaVencimentoAlvo = amanha.getDate();
-
-  const { data: alunosCobranca } = await supabase
-    .from("alunos")
+  // ---- financeiro: lembrete/atraso de parcela + resumo do professor ----
+  // Lembretes de vencimento, atraso e o resumo diário do professor são
+  // derivados de `parcelas` (não mais de alunos.dia_vencimento) pela
+  // mesma função pura usada nos testes automatizados
+  // (lib/financeiro/notificacoes.ts), garantindo que cron e testes
+  // nunca divirjam sobre "quando notificar".
+  const { data: parcelasPendentes } = await supabase
+    .from("parcelas")
     .select(
-      `id, nome, telefone, valor, pix_copia_cola, dia_vencimento, professor_id, ativo, status_pagamento, ${FK_PROFESSOR}(whatsapp_ativo)`
+      `id, numero, valor_centavos, vencimento, status,
+       contratos (professor_id, pix_copia_cola, alunos (id, nome, telefone, profile_id), ${FK_PROFESSOR_CONTRATO}(whatsapp_ativo, financeiro_dias_lembrete))`
     )
-    .eq("dia_vencimento", diaVencimentoAlvo)
-    .eq("ativo", true)
-    .neq("status_pagamento", "pago");
+    .eq("status", "pendente");
 
-  for (const aluno of alunosCobranca ?? []) {
-    const professor: any = aluno.profiles;
-    if (!aluno.telefone || !professor?.whatsapp_ativo) continue;
+  const dadosPorParcela = new Map(
+    (parcelasPendentes ?? []).map((p: any) => [
+      p.id,
+      {
+        alunoId: p.contratos?.alunos?.id as string | undefined,
+        alunoNome: p.contratos?.alunos?.nome ?? "aluno",
+        telefone: p.contratos?.alunos?.telefone as string | null | undefined,
+        valorCentavos: p.valor_centavos as number,
+        vencimento: p.vencimento as string,
+        pixCopiaCola: (p.contratos?.pix_copia_cola ?? "") as string,
+        professorId: p.contratos?.professor_id as string,
+        whatsappAtivo: Boolean(p.contratos?.profiles?.whatsapp_ativo),
+      },
+    ])
+  );
 
-    const desde = new Date(agora.getTime() - 20 * 60 * 60 * 1000).toISOString();
+  const parcelasParaNotificar: ParcelaParaNotificar[] = (parcelasPendentes ?? []).map((p: any) => ({
+    id: p.id,
+    numero: p.numero,
+    vencimento: p.vencimento,
+    status: p.status,
+    alunoProfileId: p.contratos?.alunos?.profile_id ?? null,
+    professorId: p.contratos?.professor_id,
+    professorDiasLembrete: p.contratos?.profiles?.financeiro_dias_lembrete ?? 3,
+  }));
+
+  const notificacoesParaCriar = decidirNotificacoes(parcelasParaNotificar, agora);
+
+  for (const notif of notificacoesParaCriar) {
+    const { error: erroNotif } = await supabase.from("notificacoes").upsert(
+      {
+        destinatario_id: notif.destinatarioId,
+        tipo: notif.tipo,
+        parcela_id: notif.parcelaId,
+        titulo: notif.titulo,
+        mensagem: notif.mensagem,
+        chave_idempotencia: notif.chaveIdempotencia,
+      },
+      { onConflict: "chave_idempotencia", ignoreDuplicates: true }
+    );
+    if (!erroNotif) resultado.notificacoes++;
+
+    if (!notif.parcelaId || notif.tipo === "resumo_professor_vencimentos") continue;
+
+    const dados = dadosPorParcela.get(notif.parcelaId);
+    if (!dados || !dados.telefone || !dados.whatsappAtivo) continue;
+
+    const tipoWhatsapp = notif.tipo === "parcela_atrasada" ? "parcela_atraso" : "parcela_lembrete";
+
     const { data: jaEnviado } = await supabase
       .from("whatsapp_mensagens")
       .select("id")
-      .eq("aluno_id", aluno.id)
-      .eq("tipo", "cobranca")
-      .gte("created_at", desde)
+      .eq("parcela_id", notif.parcelaId)
+      .eq("tipo", tipoWhatsapp)
       .maybeSingle();
     if (jaEnviado) continue;
 
-    const valorFormatado =
-      aluno.valor != null
-        ? Number(aluno.valor).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          })
-        : "a combinar";
+    const valorFormatado = (dados.valorCentavos / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+    const vencimentoFormatado = new Date(`${dados.vencimento}T00:00:00Z`).toLocaleDateString("pt-BR", {
+      timeZone: "UTC",
+    });
 
-    const conteudoMsg = renderizarCobranca({
-      aluno: aluno.nome,
+    const template = tipoWhatsapp === "parcela_atraso" ? TEMPLATE_PARCELA_ATRASO : TEMPLATE_PARCELA_LEMBRETE;
+    const renderizar = tipoWhatsapp === "parcela_atraso" ? renderizarParcelaAtraso : renderizarParcelaLembrete;
+
+    const conteudoMsg = renderizar({
+      aluno: dados.alunoNome,
       valor: valorFormatado,
-      pix: aluno.pix_copia_cola ?? "",
+      vencimento: vencimentoFormatado,
+      pix: dados.pixCopiaCola,
     });
 
     const envio = await enviarTemplateWhatsapp({
-      para: aluno.telefone,
-      templateName: TEMPLATE_COBRANCA.nome,
-      parametros: [aluno.nome, valorFormatado, aluno.pix_copia_cola ?? ""],
+      para: dados.telefone,
+      templateName: template.nome,
+      parametros: [dados.alunoNome, valorFormatado, vencimentoFormatado, dados.pixCopiaCola],
     });
 
     await supabase.from("whatsapp_mensagens").insert({
-      professor_id: aluno.professor_id,
-      aluno_id: aluno.id,
-      tipo: "cobranca",
-      destinatario_telefone: aluno.telefone,
+      professor_id: dados.professorId,
+      aluno_id: dados.alunoId ?? null,
+      parcela_id: notif.parcelaId,
+      tipo: tipoWhatsapp,
+      destinatario_telefone: dados.telefone,
       conteudo: conteudoMsg,
       status: envio.ok ? "enviada" : "falhou",
       whatsapp_message_id: envio.ok ? envio.whatsappMessageId : null,
       erro: envio.ok ? null : envio.erro,
-      agendado_para: amanha.toISOString(),
+      agendado_para: `${dados.vencimento}T00:00:00Z`,
       enviado_em: envio.ok ? new Date().toISOString() : null,
     });
 
-    envio.ok ? resultado.cobrancas++ : resultado.falhas++;
+    envio.ok ? resultado.financeiro++ : resultado.falhas++;
   }
 
   return NextResponse.json(resultado);

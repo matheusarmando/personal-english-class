@@ -14,6 +14,7 @@ import {
   IconChevron,
   IconSearch,
   IconLink,
+  IconWallet,
 } from "@/components/icons";
 
 type NavLink = { label: string; href: string };
@@ -31,6 +32,15 @@ const NAV: NavEntry[] = [
       { label: "Meus alunos", href: "/professor/alunos" },
       { label: "Tarefas", href: "/professor/tarefas" },
       { label: "Frequência", href: "/professor/frequencia" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Financeiro",
+    icon: IconWallet,
+    items: [
+      { label: "Painel financeiro", href: "/professor/financeiro" },
+      { label: "Contratos", href: "/professor/financeiro/contratos" },
     ],
   },
   {

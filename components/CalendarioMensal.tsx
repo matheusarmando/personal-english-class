@@ -6,12 +6,6 @@ import { chaveDia, type AulaDoDia } from "@/lib/calendario";
 
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-const LABEL_STATUS_PAGAMENTO: Record<string, string> = {
-  pendente: "Pendente",
-  pago: "Pago",
-  atrasado: "Atrasado",
-};
-
 function construirSemanas(mesRef: Date) {
   const primeiroDia = new Date(mesRef.getFullYear(), mesRef.getMonth(), 1);
   const ultimoDia = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 0);
@@ -182,51 +176,6 @@ export default function CalendarioMensal({
                     >
                       {aulaSelecionada.linkAula}
                     </a>
-                  </dd>
-                </div>
-              )}
-
-              {aulaSelecionada.valor != null && (
-                <div>
-                  <dt className="text-xs text-ink/50 mb-0.5">Valor</dt>
-                  <dd>
-                    {aulaSelecionada.valor.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
-                  </dd>
-                </div>
-              )}
-
-              {aulaSelecionada.statusPagamento && (
-                <div>
-                  <dt className="text-xs text-ink/50 mb-0.5">
-                    Status de pagamento
-                  </dt>
-                  <dd>
-                    <span
-                      className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                        aulaSelecionada.statusPagamento === "pago"
-                          ? "bg-good/15 text-good"
-                          : aulaSelecionada.statusPagamento === "atrasado"
-                          ? "bg-bad/15 text-bad"
-                          : "bg-warn/15 text-warn"
-                      }`}
-                    >
-                      {LABEL_STATUS_PAGAMENTO[aulaSelecionada.statusPagamento] ??
-                        aulaSelecionada.statusPagamento}
-                    </span>
-                  </dd>
-                </div>
-              )}
-
-              {aulaSelecionada.pixCopiaCola && (
-                <div>
-                  <dt className="text-xs text-ink/50 mb-0.5">
-                    PIX copia e cola
-                  </dt>
-                  <dd className="break-all bg-white/70 border border-line rounded-lg p-2 text-xs">
-                    {aulaSelecionada.pixCopiaCola}
                   </dd>
                 </div>
               )}

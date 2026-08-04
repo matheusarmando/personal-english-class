@@ -12,7 +12,7 @@ export default async function AlunosPage({
 
   let query = supabase
     .from("alunos")
-    .select("id, nome, email, telefone, ativo, status_pagamento")
+    .select("id, nome, email, telefone, ativo")
     .eq("professor_id", profile?.id);
 
   if (searchParams.busca) {
@@ -101,62 +101,10 @@ export default async function AlunosPage({
               />
             </div>
 
-            <div>
-              <label className="block text-sm mb-1" htmlFor="valor">
-                Valor a pagar (R$)
-              </label>
-              <input
-                id="valor"
-                name="valor"
-                type="number"
-                step="0.01"
-                min="0"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="status_pagamento">
-                Status de pagamento
-              </label>
-              <select
-                id="status_pagamento"
-                name="status_pagamento"
-                defaultValue="pendente"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value="pendente">Pendente</option>
-                <option value="pago">Pago</option>
-                <option value="atrasado">Atrasado</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="dia_vencimento">
-                Dia do vencimento
-              </label>
-              <input
-                id="dia_vencimento"
-                name="dia_vencimento"
-                type="number"
-                min="1"
-                max="31"
-                placeholder="Ex.: 10"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-sm mb-1" htmlFor="pix_copia_cola">
-                PIX copia e cola
-              </label>
-              <textarea
-                id="pix_copia_cola"
-                name="pix_copia_cola"
-                rows={2}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
+            <p className="sm:col-span-2 text-xs text-ink/50">
+              Cobrança e forma de pagamento agora ficam em{" "}
+              <span className="font-medium">Financeiro → Novo contrato</span>, depois de cadastrar o aluno.
+            </p>
 
             <div className="sm:col-span-2 flex items-center gap-2">
               <input
@@ -243,17 +191,6 @@ export default async function AlunosPage({
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                          aluno.status_pagamento === "pago"
-                            ? "bg-good/15 text-good"
-                            : aluno.status_pagamento === "atrasado"
-                            ? "bg-bad/15 text-bad"
-                            : "bg-warn/15 text-warn"
-                        }`}
-                      >
-                        {aluno.status_pagamento}
-                      </span>
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           aluno.ativo
