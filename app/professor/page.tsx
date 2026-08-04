@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
+import { buscarEventosGooglePorDia } from "@/lib/google-calendar/eventos-do-mes";
 import { criarAula } from "./actions";
 import ListaChamada from "@/components/ListaChamada";
 import CalendarioMensal from "@/components/CalendarioMensal";
@@ -26,6 +27,10 @@ export default async function ProfessorPage({
   const mesRef = resolverMesReferencia(searchParams.mes);
   const inicioMes = new Date(mesRef.getFullYear(), mesRef.getMonth(), 1);
   const fimMes = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 1);
+
+  // Compromissos do Google Calendar do mês exibido — enriquecimento,
+  // nunca pode derrubar o painel (buscarEventosGooglePorDia nunca lança).
+  const eventosGooglePorDia = await buscarEventosGooglePorDia(profile?.id, inicioMes, fimMes);
 
   const { data: meusAlunos } = await supabase
     .from("alunos")
@@ -262,6 +267,7 @@ export default async function ProfessorPage({
           mesRef={mesRef}
           aulasPorDia={aulasPorDia}
           baseHref="/professor"
+          eventosGooglePorDia={eventosGooglePorDia}
         />
       </section>
 

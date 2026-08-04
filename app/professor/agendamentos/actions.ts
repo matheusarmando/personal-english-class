@@ -2,10 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient, getProfile } from "@/lib/supabase/server";
+import { GoogleCalendarProvider } from "@/lib/google-calendar/providers/google";
+import { converterParaInstanteUTC } from "@/lib/google-calendar/timezone";
 
-export async function criarAgendamentoAvulso(formData: FormData) {
+export type ResultadoAgendamento =
+  | { ok: true }
+  | { ok: false; conflito: true; tituloConflito: string | null; inicioConflito: string; fimConflito: string }
+  | { ok: false; conflito: false; erro: string };
+
+const DURACAO_PADRAO_MINUTOS = 60;
+
+export async function criarAgendamentoAvulso(formData: FormData): Promise<ResultadoAgendamento> {
   const profile = await getProfile();
-  if (!profile) return;
+  if (!profile) return { ok: false, conflito: false, erro: "Não autenticado." };
 
   const supabase = createClient();
   const nome = formData.get("nome") as string;
@@ -15,8 +24,26 @@ export async function criarAgendamentoAvulso(formData: FormData) {
   const data = formData.get("data") as string;
   const hora = formData.get("hora") as string;
   const observacoes = formData.get("observacoes") as string;
+  const forcarAgendamento = formData.get("forcar_agendamento") === "on";
 
-  if (!data || !hora) return;
+  if (!data || !hora) return { ok: false, conflito: false, erro: "Preencha data e hora." };
+
+  const inicio = converterParaInstanteUTC(data, hora, profile.timezone ?? "America/Sao_Paulo");
+  const fim = new Date(inicio.getTime() + DURACAO_PADRAO_MINUTOS * 60 * 1000);
+
+  if (!forcarAgendamento) {
+    const provider = new GoogleCalendarProvider(supabase);
+    const { conflito } = await provider.verificarOcupacao(profile.id, inicio, fim);
+    if (conflito) {
+      return {
+        ok: false,
+        conflito: true,
+        tituloConflito: conflito.titulo,
+        inicioConflito: conflito.inicio.toISOString(),
+        fimConflito: conflito.fim.toISOString(),
+      };
+    }
+  }
 
   await supabase.from("agendamentos_avulsos").insert({
     professor_id: profile.id,
@@ -24,12 +51,13 @@ export async function criarAgendamentoAvulso(formData: FormData) {
     email: email || null,
     telefone: telefone || null,
     tipo: tipo || "outro",
-    data_hora: `${data}T${hora}:00`,
+    data_hora: inicio.toISOString(),
     observacoes: observacoes || null,
   });
 
   revalidatePath("/professor/agendamentos");
   revalidatePath("/professor");
+  return { ok: true };
 }
 
 export async function excluirAgendamentoAvulso(agendamentoId: string) {

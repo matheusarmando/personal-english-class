@@ -4,10 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import {
   atualizarAluno,
   excluirAluno,
-  adicionarHorario,
   removerHorario,
   concluirAula,
 } from "../actions";
+import FormAdicionarHorario from "./FormAdicionarHorario";
 
 export default async function AlunoPage({
   params,
@@ -261,29 +261,7 @@ export default async function AlunoPage({
             </ul>
           )}
 
-          <form
-            action={adicionarHorario.bind(null, aluno.id)}
-            className="flex gap-2 flex-wrap bg-white/70 border border-line rounded-xl p-4"
-          >
-            <input
-              name="data"
-              type="date"
-              required
-              className="rounded-lg border border-line bg-white px-3 py-2 text-sm"
-            />
-            <input
-              name="hora"
-              type="time"
-              required
-              className="rounded-lg border border-line bg-white px-3 py-2 text-sm"
-            />
-            <button
-              type="submit"
-              className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
-            >
-              Adicionar aula
-            </button>
-          </form>
+          <FormAdicionarHorario alunoId={aluno.id} />
         </section>
       </div>
     </main>

@@ -3,6 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient, getProfile } from "@/lib/supabase/server";
+import { GoogleCalendarProvider } from "@/lib/google-calendar/providers/google";
+import { converterParaInstanteUTC } from "@/lib/google-calendar/timezone";
+
+export type ResultadoAgendamento =
+  | { ok: true }
+  | { ok: false; conflito: true; tituloConflito: string | null; inicioConflito: string; fimConflito: string }
+  | { ok: false; conflito: false; erro: string };
 
 function lerDadosAluno(formData: FormData) {
   return {
@@ -45,18 +52,46 @@ export async function excluirAluno(alunoId: string) {
   redirect("/professor/alunos");
 }
 
-export async function adicionarHorario(alunoId: string, formData: FormData) {
+const DURACAO_PADRAO_MINUTOS = 60;
+
+export async function adicionarHorario(alunoId: string, formData: FormData): Promise<ResultadoAgendamento> {
   const supabase = createClient();
   const data = formData.get("data") as string;
   const hora = formData.get("hora") as string;
+  const forcarAgendamento = formData.get("forcar_agendamento") === "on";
 
-  if (!data || !hora) return;
+  if (!data || !hora) return { ok: false, conflito: false, erro: "Preencha data e hora." };
 
-  await supabase
-    .from("aluno_horarios")
-    .insert({ aluno_id: alunoId, data_hora: `${data}T${hora}:00` });
+  const { data: aluno } = await supabase.from("alunos").select("professor_id").eq("id", alunoId).single();
+  if (!aluno) return { ok: false, conflito: false, erro: "Aluno não encontrado." };
+
+  const { data: professor } = await supabase
+    .from("profiles")
+    .select("timezone")
+    .eq("id", aluno.professor_id)
+    .single();
+
+  const inicio = converterParaInstanteUTC(data, hora, professor?.timezone ?? "America/Sao_Paulo");
+  const fim = new Date(inicio.getTime() + DURACAO_PADRAO_MINUTOS * 60 * 1000);
+
+  if (!forcarAgendamento) {
+    const provider = new GoogleCalendarProvider(supabase);
+    const { conflito } = await provider.verificarOcupacao(aluno.professor_id, inicio, fim);
+    if (conflito) {
+      return {
+        ok: false,
+        conflito: true,
+        tituloConflito: conflito.titulo,
+        inicioConflito: conflito.inicio.toISOString(),
+        fimConflito: conflito.fim.toISOString(),
+      };
+    }
+  }
+
+  await supabase.from("aluno_horarios").insert({ aluno_id: alunoId, data_hora: inicio.toISOString() });
 
   revalidatePath(`/professor/alunos/${alunoId}`);
+  return { ok: true };
 }
 
 export async function removerHorario(alunoId: string, horarioId: string) {

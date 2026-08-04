@@ -29,15 +29,19 @@ function mesHref(baseHref: string, mesRef: Date, offset: number) {
 }
 
 type AulaSelecionada = AulaDoDia & { data: Date };
+type EventoGoogleDoDia = { hora: string; titulo: string };
 
 export default function CalendarioMensal({
   mesRef,
   aulasPorDia,
   baseHref,
+  eventosGooglePorDia,
 }: {
   mesRef: Date;
   aulasPorDia: Record<string, AulaDoDia[]>;
   baseHref: string;
+  /** Compromissos externos (Google Calendar) — só passado pro professor, nunca pro aluno. */
+  eventosGooglePorDia?: Record<string, EventoGoogleDoDia[]>;
 }) {
   const [aulaSelecionada, setAulaSelecionada] = useState<AulaSelecionada | null>(
     null
@@ -81,6 +85,7 @@ export default function CalendarioMensal({
           semana.map((dia, di) => {
             const chave = dia ? chaveDia(dia) : `vazio-${si}-${di}`;
             const aulas = dia ? aulasPorDia[chaveDia(dia)] ?? [] : [];
+            const eventosGoogle = dia ? eventosGooglePorDia?.[chaveDia(dia)] ?? [] : [];
             const ehHoje = dia && chaveDia(dia) === hoje;
 
             return (
@@ -115,6 +120,18 @@ export default function CalendarioMensal({
                         <p className="text-[11px] text-ink/50">
                           +{aulas.length - 3} mais
                         </p>
+                      )}
+                      {eventosGoogle.slice(0, 2).map((e, i) => (
+                        <div
+                          key={`g-${i}`}
+                          title={`${e.hora} · ${e.titulo} (Google Calendar)`}
+                          className="w-full text-left text-[11px] leading-tight bg-ink/10 text-ink/50 rounded px-1 py-0.5 truncate"
+                        >
+                          {e.hora} {e.titulo}
+                        </div>
+                      ))}
+                      {eventosGoogle.length > 2 && (
+                        <p className="text-[11px] text-ink/40">+{eventosGoogle.length - 2} no Google</p>
                       )}
                     </div>
                   </>

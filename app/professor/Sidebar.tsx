@@ -15,6 +15,7 @@ import {
   IconSearch,
   IconLink,
   IconWallet,
+  IconSettings,
 } from "@/components/icons";
 
 type NavLink = { label: string; href: string };
@@ -70,6 +71,12 @@ const NAV: NavEntry[] = [
   { type: "link", label: "Página pública", href: "/professor/pagina-publica", icon: IconLink },
   { type: "link", label: "WhatsApp", href: "/professor/whatsapp", icon: IconWhatsapp },
   { type: "link", label: "Cadastro", href: "/professor/cadastro", icon: IconUser },
+  {
+    type: "group",
+    label: "Configurações",
+    icon: IconSettings,
+    items: [{ label: "Google Calendar", href: "/professor/configuracoes/google-calendar" }],
+  },
 ];
 
 function normaliza(txt: string) {

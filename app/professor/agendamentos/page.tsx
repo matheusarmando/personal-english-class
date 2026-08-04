@@ -1,6 +1,7 @@
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
-import { criarAgendamentoAvulso, excluirAgendamentoAvulso } from "./actions";
+import { excluirAgendamentoAvulso } from "./actions";
+import FormNovoAgendamento from "./FormNovoAgendamento";
 
 export default async function AgendamentosPage() {
   const profile = await getProfile();
@@ -27,111 +28,7 @@ export default async function AgendamentosPage() {
             recorrente de um aluno já cadastrado — por exemplo, um teste de
             proficiência ou uma aula experimental.
           </p>
-          <form
-            action={criarAgendamentoAvulso}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/70 border border-line rounded-xl p-6"
-          >
-            <div className="sm:col-span-2">
-              <label className="block text-sm mb-1" htmlFor="nome">
-                Nome
-              </label>
-              <input
-                id="nome"
-                name="nome"
-                required
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="tipo">
-                Tipo
-              </label>
-              <select
-                id="tipo"
-                name="tipo"
-                defaultValue="teste_proficiencia"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                {Object.entries(LABEL_TIPO_AGENDAMENTO).map(([valor, label]) => (
-                  <option key={valor} value={valor}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="email">
-                E-mail
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="telefone">
-                Telefone
-              </label>
-              <input
-                id="telefone"
-                name="telefone"
-                type="tel"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="data">
-                Data
-              </label>
-              <input
-                id="data"
-                name="data"
-                type="date"
-                required
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="hora">
-                Hora
-              </label>
-              <input
-                id="hora"
-                name="hora"
-                type="time"
-                required
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-sm mb-1" htmlFor="observacoes">
-                Observações
-              </label>
-              <textarea
-                id="observacoes"
-                name="observacoes"
-                rows={2}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <button
-                type="submit"
-                className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
-              >
-                Agendar
-              </button>
-            </div>
-          </form>
+          <FormNovoAgendamento />
         </section>
 
         <section>
