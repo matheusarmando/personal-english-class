@@ -15,5 +15,13 @@ export function createAdminClient() {
 
   return createClient(url, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: {
+      // O Next.js (App Router) intercepta o `fetch` global e cacheia
+      // por padrão, mesmo em rotas dinâmicas — sem isso, uma consulta
+      // feita pelo admin client pode ficar presa num resultado antigo
+      // (ex.: "sem eventos do Google") até o cache expirar sozinho,
+      // já que nada aqui chama revalidatePath depois de sincronizar.
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    },
   });
 }
