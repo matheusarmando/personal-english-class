@@ -59,6 +59,7 @@ export default function CalendarioMensal({
       <div className="flex items-center justify-between px-4 py-3 border-b border-line">
         <Link
           href={mesHref(baseHref, mesRef, -1)}
+          prefetch={false}
           className="text-sm text-ink/60 hover:text-accent transition-colors"
         >
           ← Anterior
@@ -66,6 +67,7 @@ export default function CalendarioMensal({
         <span className="font-display font-semibold text-sm capitalize">{tituloMes}</span>
         <Link
           href={mesHref(baseHref, mesRef, 1)}
+          prefetch={false}
           className="text-sm text-ink/60 hover:text-accent transition-colors"
         >
           Próximo →
