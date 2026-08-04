@@ -237,13 +237,6 @@ export default async function ProfessorPage({
         <span className="text-sm text-ink/50">Área do professor</span>
       </div>
 
-      {/* DIAGNÓSTICO TEMPORÁRIO — remover depois de resolver o bug do calendário */}
-      <div className="max-w-3xl mb-4 rounded-lg border border-warn bg-warn/10 p-3 text-xs font-mono">
-        <p>renderizado às: {new Date().toISOString()}</p>
-        <p>mesRef calculado: {mesRef.toISOString()} (searchParams.mes = "{searchParams.mes ?? "(vazio)"}")</p>
-        <p>eventosGooglePorDia: {Object.keys(eventosGooglePorDia).length} dia(s) com evento — chaves: {Object.keys(eventosGooglePorDia).join(", ") || "(nenhuma)"}</p>
-      </div>
-
       <section className="grid grid-cols-3 gap-4 max-w-3xl mb-8">
         <div className="border border-line rounded-xl p-4 bg-white flex items-center gap-3">
           <span className="w-10 h-10 rounded-lg bg-accentSoft text-accent flex items-center justify-center shrink-0">
