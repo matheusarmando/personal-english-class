@@ -9,13 +9,10 @@ import {
   IconChat,
   IconExam,
   IconCalendar,
-  IconWhatsapp,
-  IconUser,
-  IconChevron,
-  IconSearch,
-  IconLink,
   IconWallet,
   IconSettings,
+  IconChevron,
+  IconSearch,
 } from "@/components/icons";
 
 type NavLink = { label: string; href: string };
@@ -31,8 +28,25 @@ const NAV: NavEntry[] = [
     icon: IconUsers,
     items: [
       { label: "Meus alunos", href: "/professor/alunos" },
-      { label: "Tarefas", href: "/professor/tarefas" },
       { label: "Frequência", href: "/professor/frequencia" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Pedagógico",
+    icon: IconExam,
+    items: [
+      { label: "Tarefas", href: "/professor/tarefas" },
+      { label: "Provas", href: "/professor/provas" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Agenda",
+    icon: IconCalendar,
+    items: [
+      { label: "Agendamentos avulsos", href: "/professor/agendamentos" },
+      { label: "Calendário letivo", href: "/professor/calendario-letivo" },
     ],
   },
   {
@@ -55,27 +69,14 @@ const NAV: NavEntry[] = [
   },
   {
     type: "group",
-    label: "Avaliações",
-    icon: IconExam,
-    items: [{ label: "Provas", href: "/professor/provas" }],
-  },
-  {
-    type: "group",
-    label: "Agenda",
-    icon: IconCalendar,
-    items: [
-      { label: "Agendamentos avulsos", href: "/professor/agendamentos" },
-      { label: "Calendário letivo", href: "/professor/calendario-letivo" },
-    ],
-  },
-  { type: "link", label: "Página pública", href: "/professor/pagina-publica", icon: IconLink },
-  { type: "link", label: "WhatsApp", href: "/professor/whatsapp", icon: IconWhatsapp },
-  { type: "link", label: "Cadastro", href: "/professor/cadastro", icon: IconUser },
-  {
-    type: "group",
     label: "Configurações",
     icon: IconSettings,
-    items: [{ label: "Google Calendar", href: "/professor/configuracoes/google-calendar" }],
+    items: [
+      { label: "Página pública", href: "/professor/pagina-publica" },
+      { label: "WhatsApp", href: "/professor/whatsapp" },
+      { label: "Meu cadastro", href: "/professor/cadastro" },
+      { label: "Google Calendar", href: "/professor/configuracoes/google-calendar" },
+    ],
   },
 ];
 
