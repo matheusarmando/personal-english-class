@@ -22,21 +22,28 @@ export async function buscarEventosGooglePorDia(
   try {
     const admin = createAdminClient();
 
-    const { data: contaGoogle } = await admin
+    const { data: contaGoogle, error: erroConta } = await admin
       .from("google_calendar_accounts")
       .select("id, ignorar_dia_inteiro")
       .eq("professor_id", professorId)
       .eq("status", "conectado")
       .maybeSingle();
 
+    if (erroConta) {
+      console.error("Erro ao buscar google_calendar_accounts:", erroConta.message);
+    }
     if (!contaGoogle) return eventosGooglePorDia;
 
-    const { data: eventosGoogleRaw } = await admin
+    const { data: eventosGoogleRaw, error: erroEventos } = await admin
       .from("google_calendar_events")
       .select("title, starts_at, ends_at, is_all_day, transparency, status, attendee_response")
       .eq("account_id", contaGoogle.id)
       .lt("starts_at", fimMes.toISOString())
       .gte("ends_at", inicioMes.toISOString());
+
+    if (erroEventos) {
+      console.error("Erro ao buscar google_calendar_events:", erroEventos.message);
+    }
 
     const intervalosOcupados = calcularIntervalosOcupados(
       (eventosGoogleRaw ?? []).map((e) => ({

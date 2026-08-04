@@ -16,6 +16,12 @@ import {
 } from "@/lib/calendario";
 import { statusEfetivo } from "@/lib/financeiro/status";
 
+// Sem isso, o Next.js pode cachear a página (HTML e as respostas RSC
+// das navegações client-side, ex.: os links "Anterior/Próximo" do
+// calendário) e servir sempre o mesmo mês/estado antigo em vez de
+// reconsultar o banco a cada troca de ?mes=.
+export const dynamic = "force-dynamic";
+
 export default async function ProfessorPage({
   searchParams,
 }: {
