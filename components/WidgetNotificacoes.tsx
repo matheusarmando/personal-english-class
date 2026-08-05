@@ -8,9 +8,15 @@ type Notificacao = {
   mensagem: string;
 };
 
-export default function WidgetNotificacoes({ notificacoes }: { notificacoes: Notificacao[] }) {
+export default function WidgetNotificacoes({
+  notificacoes,
+  titulo = "Avisos financeiros",
+}: {
+  notificacoes: Notificacao[];
+  titulo?: string;
+}) {
   return (
-    <WidgetCard titulo="Avisos financeiros">
+    <WidgetCard titulo={titulo}>
       {notificacoes.length === 0 ? (
         <EstadoVazio texto="Nenhum aviso novo." />
       ) : (
