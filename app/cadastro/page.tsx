@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { senhaValida } from "@/lib/validacao";
+import { emailValido, senhaValida } from "@/lib/validacao";
 
 type Papel = "professor" | "aluno";
 
@@ -17,6 +17,9 @@ export default function CadastroPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [erroEmail, setErroEmail] = useState<string | null>(null);
+  const [erroSenha, setErroSenha] = useState(false);
+  const [erroConfirmarSenha, setErroConfirmarSenha] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,17 +117,31 @@ export default function CadastroPage() {
           className="w-full mb-4 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
         />
 
-        <label className="block text-sm mb-1" htmlFor="email">
-          E-mail
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <div className="mb-4">
+          <label className="block text-sm mb-1" htmlFor="email">
+            E-mail
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            placeholder="nome@exemplo.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={(e) => {
+              const valor = e.target.value.trim();
+              setErroEmail(valor && !emailValido(valor) ? "E-mail em formato inválido." : null);
+            }}
+            className={`w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
+              erroEmail ? "border-bad" : "border-line"
+            }`}
+          />
+          {erroEmail && (
+            <p className="text-xs text-bad mt-1" role="alert">
+              {erroEmail}
+            </p>
+          )}
+        </div>
 
         <label className="block text-sm mb-1" htmlFor="password">
           Senha
@@ -136,24 +153,41 @@ export default function CadastroPage() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-1 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          onBlur={(e) => setErroSenha(Boolean(e.target.value) && !senhaValida(e.target.value))}
+          className={`w-full mb-1 rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
+            erroSenha ? "border-bad" : "border-line"
+          }`}
         />
-        <p className="text-xs text-ink/50 mb-4">
+        <p className={`text-xs mb-4 ${erroSenha ? "text-bad" : "text-ink/50"}`}>
           Mínimo 8 caracteres, com 1 letra maiúscula e 1 número.
         </p>
 
-        <label className="block text-sm mb-1" htmlFor="confirmPassword">
-          Confirmar senha
-        </label>
-        <input
-          id="confirmPassword"
-          type="password"
-          required
-          minLength={8}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full mb-6 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <div className="mb-6">
+          <label className="block text-sm mb-1" htmlFor="confirmPassword">
+            Confirmar senha
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            required
+            minLength={8}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onBlur={(e) =>
+              setErroConfirmarSenha(
+                e.target.value && e.target.value !== password ? "As senhas não conferem." : null
+              )
+            }
+            className={`w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
+              erroConfirmarSenha ? "border-bad" : "border-line"
+            }`}
+          />
+          {erroConfirmarSenha && (
+            <p className="text-xs text-bad mt-1" role="alert">
+              {erroConfirmarSenha}
+            </p>
+          )}
+        </div>
 
         {error && (
           <p className="text-sm text-bad mb-4" role="alert">
