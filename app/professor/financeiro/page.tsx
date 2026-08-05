@@ -86,7 +86,7 @@ export default async function FinanceiroDashboardPage() {
         </div>
         <Link
           href="/professor/financeiro/contratos"
-          className="rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:border-accent transition-colors"
+          className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
         >
           Ver contratos
         </Link>

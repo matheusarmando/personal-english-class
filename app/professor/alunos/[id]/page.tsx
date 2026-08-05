@@ -41,7 +41,7 @@ export default async function AlunoPage({
         <h1 className="font-display font-semibold text-3xl">{aluno.nome}</h1>
         <Link
           href={`/professor/financeiro/contratos?aluno=${encodeURIComponent(aluno.nome)}`}
-          className="rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:border-accent transition-colors"
+          className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
         >
           Ver contratos financeiros
         </Link>
