@@ -14,6 +14,7 @@ export default async function AlunoLayout({
       nome={profile?.nome}
       papel="Aluno"
       cadastroHref="/aluno/cadastro"
+      painelHref="/aluno"
       sidebar={<Sidebar />}
     >
       {children}

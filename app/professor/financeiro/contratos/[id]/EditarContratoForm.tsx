@@ -33,7 +33,7 @@ export default function EditarContratoForm({
       <button
         type="button"
         onClick={() => setAberto(true)}
-        className="text-xs font-semibold text-accent hover:underline"
+        className="rounded-lg bg-accentSoft text-accent px-3 py-1.5 text-xs font-semibold hover:bg-accent hover:text-white transition-colors"
       >
         Editar contrato
       </button>

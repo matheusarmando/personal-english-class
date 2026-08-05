@@ -28,7 +28,7 @@ export default async function AlunoPage({
   const { data: horariosDoMes } = meusRegistroIds.length
     ? await supabase
         .from("aluno_horarios")
-        .select("id, data_hora, aluno_id")
+        .select("id, data_hora, aluno_id, link_aula")
         .in("aluno_id", meusRegistroIds)
         .neq("status", "cancelada")
         .gte("data_hora", inicioMes.toISOString())
@@ -48,7 +48,7 @@ export default async function AlunoPage({
       id: h.id,
       hora,
       titulo: "Aula agendada",
-      linkAula: registro?.link_aula,
+      linkAula: h.link_aula ?? registro?.link_aula,
     });
   }
 

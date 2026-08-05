@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   const { data: horarios } = await supabase
     .from("aluno_horarios")
     .select(
-      `id, data_hora, aluno_id, alunos(nome, telefone, link_aula, professor_id, ${FK_PROFESSOR}(nome, whatsapp_ativo))`
+      `id, data_hora, link_aula, aluno_id, alunos(nome, telefone, link_aula, professor_id, ${FK_PROFESSOR}(nome, whatsapp_ativo))`
     )
     .eq("status", "agendada")
     .gte("data_hora", inicioHoje.toISOString())
@@ -68,17 +68,18 @@ export async function GET(request: Request) {
       hour: "2-digit",
       minute: "2-digit",
     });
+    const linkAula = h.link_aula ?? aluno.link_aula ?? "";
     const conteudo = renderizarLembreteAula({
       aluno: aluno.nome,
       professor: professor.nome,
       hora,
-      linkAula: aluno.link_aula ?? "",
+      linkAula,
     });
 
     const envio = await enviarTemplateWhatsapp({
       para: aluno.telefone,
       templateName: TEMPLATE_LEMBRETE_AULA.nome,
-      parametros: [aluno.nome, professor.nome, hora, aluno.link_aula ?? ""],
+      parametros: [aluno.nome, professor.nome, hora, linkAula],
     });
 
     await supabase.from("whatsapp_mensagens").insert({

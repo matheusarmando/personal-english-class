@@ -48,6 +48,16 @@ export default function FormPaginaPublica({
             className="flex-1 min-w-0 px-3 py-2 text-sm focus:outline-none"
           />
         </div>
+        {slugAtual && (
+          <a
+            href={`/p/${slugAtual}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block mt-1.5 text-xs font-semibold text-accent hover:underline"
+          >
+            Abrir página pública em nova aba →
+          </a>
+        )}
       </div>
 
       <div>

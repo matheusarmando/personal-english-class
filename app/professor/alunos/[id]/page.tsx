@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { excluirAluno, removerHorario, concluirAula } from "../actions";
 import FormAdicionarHorario from "./FormAdicionarHorario";
 import EditarAlunoForm from "./EditarAlunoForm";
+import ConfirmarAcao from "@/components/ConfirmarAcao";
 
 export default async function AlunoPage({
   params,
@@ -40,7 +41,7 @@ export default async function AlunoPage({
         <h1 className="font-display font-semibold text-3xl">{aluno.nome}</h1>
         <Link
           href={`/professor/financeiro/contratos?aluno=${encodeURIComponent(aluno.nome)}`}
-          className="text-sm font-semibold text-accent hover:underline"
+          className="rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent transition-colors"
         >
           Ver contratos financeiros
         </Link>
@@ -73,14 +74,14 @@ export default async function AlunoPage({
           <h2 className="font-display font-semibold text-lg mb-3">Dados do aluno</h2>
           <EditarAlunoForm aluno={aluno} />
 
-          <form action={excluirAluno.bind(null, aluno.id)} className="mt-3">
-            <button
-              type="submit"
-              className="text-xs text-bad hover:underline"
-            >
-              Excluir aluno
-            </button>
-          </form>
+          <div className="mt-3">
+            <ConfirmarAcao
+              action={excluirAluno.bind(null, aluno.id)}
+              rotulo="Excluir aluno"
+              titulo="Excluir este aluno?"
+              mensagem={`Isso remove ${aluno.nome} e todo o histórico de aulas associado. Essa ação não pode ser desfeita.`}
+            />
+          </div>
         </section>
 
         <section>
@@ -115,14 +116,12 @@ export default async function AlunoPage({
                         >
                           {h.status}
                         </span>
-                        <form action={removerHorario.bind(null, aluno.id, h.id)}>
-                          <button
-                            type="submit"
-                            className="text-xs text-bad hover:underline"
-                          >
-                            Remover
-                          </button>
-                        </form>
+                        <ConfirmarAcao
+                          action={removerHorario.bind(null, aluno.id, h.id)}
+                          rotulo="Remover"
+                          titulo="Remover esta aula?"
+                          mensagem={`Remove a aula de ${dataHoraFmt}. Essa ação não pode ser desfeita.`}
+                        />
                       </div>
                     </div>
 
@@ -166,7 +165,7 @@ export default async function AlunoPage({
             </ul>
           )}
 
-          <FormAdicionarHorario alunoId={aluno.id} />
+          <FormAdicionarHorario alunoId={aluno.id} linkPadrao={aluno.link_aula} />
         </section>
       </div>
     </main>

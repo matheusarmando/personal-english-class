@@ -49,7 +49,7 @@ export default async function ProfessorPage({
   const { data: horariosDoMes } = alunoIds.length
     ? await supabase
         .from("aluno_horarios")
-        .select("id, data_hora, aluno_id")
+        .select("id, data_hora, aluno_id, link_aula")
         .in("aluno_id", alunoIds)
         .neq("status", "cancelada")
         .gte("data_hora", inicioMes.toISOString())
@@ -70,7 +70,7 @@ export default async function ProfessorPage({
       id: h.id,
       hora,
       titulo: aluno?.nome ?? "Aluno",
-      linkAula: aluno?.link_aula,
+      linkAula: h.link_aula ?? aluno?.link_aula,
     });
   }
 
