@@ -70,11 +70,17 @@ export default async function AlunoPage({
       </p>
       <div className="flex items-baseline justify-between mb-8">
         <h1 className="font-display font-semibold text-3xl">Olá, {profile?.nome}</h1>
-        <div className="flex items-center gap-4">
-          <Link href="/aluno/frequencia" className="text-sm font-semibold text-accent hover:underline">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/aluno/frequencia"
+            className="rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:border-accent transition-colors"
+          >
             Ver frequência
           </Link>
-          <Link href="/aluno/financeiro" className="text-sm font-semibold text-accent hover:underline">
+          <Link
+            href="/aluno/financeiro"
+            className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
+          >
             Ver financeiro
           </Link>
         </div>
