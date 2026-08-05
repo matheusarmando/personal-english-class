@@ -91,7 +91,7 @@ export default function AcoesParcela({
           <button
             type="button"
             onClick={() => setFormAberto(formAberto === "estorno" ? null : "estorno")}
-            className="rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
+            className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-accent transition-colors"
           >
             Estornar
           </button>
@@ -218,7 +218,7 @@ export default function AcoesParcela({
           <button
             type="submit"
             disabled={enviando}
-            className="rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+            className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-accent transition-colors disabled:opacity-50"
           >
             {enviando ? "Estornando..." : "Confirmar estorno"}
           </button>
@@ -258,7 +258,7 @@ export default function AcoesParcela({
             <button
               type="submit"
               disabled={enviando}
-              className="rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+              className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-accent transition-colors disabled:opacity-50"
             >
               Rejeitar
             </button>

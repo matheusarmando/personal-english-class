@@ -86,7 +86,6 @@ export default async function DetalheContratoPage({ params }: { params: { id: st
             rotulo="Cancelar contrato"
             titulo="Cancelar este contrato?"
             mensagem="Todas as parcelas ainda pendentes serão canceladas. Parcelas já pagas não são afetadas. Essa ação não pode ser desfeita."
-            className="rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
           />
         )}
       </div>
