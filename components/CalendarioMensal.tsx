@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { chaveDia, type AulaDoDia } from "@/lib/calendario";
+import SolicitarAgendamentoForm from "./SolicitarAgendamentoForm";
 
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -42,12 +43,15 @@ export default function CalendarioMensal({
   aulasPorDia,
   baseHref,
   eventosGooglePorDia,
+  permitirSolicitarAgendamento,
 }: {
   mesRef: Date;
   aulasPorDia: Record<string, AulaDoDia[]>;
   baseHref: string;
   /** Compromissos externos (Google Calendar) — só passado pro professor, nunca pro aluno. */
   eventosGooglePorDia?: Record<string, EventoGoogleDoDia[]>;
+  /** Só true na área do aluno — mostra o botão de solicitar remarcação/cancelamento no modal. */
+  permitirSolicitarAgendamento?: boolean;
 }) {
   const [aulaSelecionada, setAulaSelecionada] = useState<AulaSelecionada | null>(
     null
@@ -221,6 +225,10 @@ export default function CalendarioMensal({
                 </div>
               )}
             </dl>
+
+            {permitirSolicitarAgendamento && (
+              <SolicitarAgendamentoForm key={aulaSelecionada.id} aulaHorarioId={aulaSelecionada.id} />
+            )}
           </div>
         </div>
       )}

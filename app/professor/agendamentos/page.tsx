@@ -1,8 +1,23 @@
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
-import { excluirAgendamentoAvulso } from "./actions";
+import { excluirAgendamentoAvulso, aprovarSolicitacao, recusarSolicitacao } from "./actions";
 import FormNovoAgendamento from "./FormNovoAgendamento";
 import ConfirmarAcao from "@/components/ConfirmarAcao";
+import EstadoVazio from "@/components/EstadoVazio";
+
+const LABEL_TIPO_SOLICITACAO: Record<string, string> = {
+  remarcacao: "Remarcação",
+  cancelamento: "Cancelamento",
+  aula_extra: "Aula extra",
+};
+
+function formatarDataHora(iso: string) {
+  const dt = new Date(iso);
+  return `${dt.toLocaleDateString("pt-BR")} ${dt.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+}
 
 export default async function AgendamentosPage() {
   const profile = await getProfile();
@@ -14,6 +29,31 @@ export default async function AgendamentosPage() {
     .eq("professor_id", profile?.id)
     .order("data_hora");
 
+  const { data: solicitacoes } = await supabase
+    .from("solicitacoes_agendamento")
+    .select("id, aluno_id, tipo, motivo, aula_horario_id, data_hora_sugerida, created_at")
+    .eq("professor_id", profile?.id)
+    .eq("status", "pendente")
+    .order("created_at");
+
+  const listaSolicitacoes = solicitacoes ?? [];
+
+  const alunoIds = [...new Set(listaSolicitacoes.map((s) => s.aluno_id))];
+  const { data: alunosEnvolvidos } = alunoIds.length
+    ? await supabase.from("alunos").select("id, nome").in("id", alunoIds)
+    : { data: [] };
+  const nomePorAlunoId = new Map((alunosEnvolvidos ?? []).map((a) => [a.id, a.nome]));
+
+  const horarioIds = listaSolicitacoes
+    .map((s) => s.aula_horario_id)
+    .filter((id): id is string => Boolean(id));
+  const { data: horariosOriginais } = horarioIds.length
+    ? await supabase.from("aluno_horarios").select("id, data_hora").in("id", horarioIds)
+    : { data: [] };
+  const dataHoraOriginalPorHorarioId = new Map(
+    (horariosOriginais ?? []).map((h) => [h.id, h.data_hora])
+  );
+
   return (
     <main className="px-8 py-10">
       <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
@@ -22,6 +62,70 @@ export default async function AgendamentosPage() {
       <h1 className="font-display font-semibold text-3xl mb-8">Agendamentos avulsos</h1>
 
       <div className="max-w-2xl space-y-10">
+        <section>
+          <h2 className="font-display font-semibold text-lg mb-3">Solicitações dos alunos</h2>
+          {listaSolicitacoes.length === 0 ? (
+            <EstadoVazio texto="Nenhuma solicitação pendente." />
+          ) : (
+            <ul className="space-y-3">
+              {listaSolicitacoes.map((s) => {
+                const dataHoraOriginal = s.aula_horario_id
+                  ? dataHoraOriginalPorHorarioId.get(s.aula_horario_id)
+                  : null;
+                return (
+                  <li key={s.id} className="border border-line rounded-xl bg-white p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">
+                          {nomePorAlunoId.get(s.aluno_id) ?? "Aluno"} ·{" "}
+                          {LABEL_TIPO_SOLICITACAO[s.tipo] ?? s.tipo}
+                        </p>
+                        {dataHoraOriginal && (
+                          <p className="text-xs text-ink/50 mt-0.5">
+                            Aula original: {formatarDataHora(dataHoraOriginal)}
+                          </p>
+                        )}
+                        {s.tipo === "remarcacao" && s.data_hora_sugerida && (
+                          <p className="text-xs text-ink/50">
+                            Sugestão do aluno: {formatarDataHora(s.data_hora_sugerida)}
+                          </p>
+                        )}
+                        {s.motivo && (
+                          <p className="text-xs text-ink/60 mt-1">"{s.motivo}"</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <form className="mt-3 flex flex-col gap-2">
+                      <input
+                        name="resposta"
+                        placeholder="Resposta ao aluno (opcional)"
+                        className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          formAction={aprovarSolicitacao.bind(null, s.id)}
+                          className="rounded-lg bg-good/15 text-good px-3 py-1.5 text-xs font-semibold hover:bg-good hover:text-white transition-colors"
+                        >
+                          Aprovar
+                        </button>
+                        <button
+                          type="submit"
+                          formAction={recusarSolicitacao.bind(null, s.id)}
+                          className="rounded-lg bg-bad/15 text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
+                        >
+                          Recusar
+                        </button>
+                      </div>
+                    </form>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
         <section>
           <h2 className="font-display font-semibold text-lg mb-3">Novo agendamento</h2>
           <p className="text-xs text-ink/50 mb-3">
