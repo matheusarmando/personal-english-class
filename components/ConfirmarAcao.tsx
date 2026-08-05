@@ -33,7 +33,7 @@ export default function ConfirmarAcao({
         onClick={() => setAberto(true)}
         className={
           className ??
-          "rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-accent transition-colors"
+          "rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
         }
       >
         {rotulo}

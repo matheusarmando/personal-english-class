@@ -113,7 +113,7 @@ export default async function AgendamentosPage() {
                         <button
                           type="submit"
                           formAction={recusarSolicitacao.bind(null, s.id)}
-                          className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-accent transition-colors"
+                          className="rounded-lg bg-bad/15 text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
                         >
                           Recusar
                         </button>
