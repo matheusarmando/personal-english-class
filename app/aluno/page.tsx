@@ -52,12 +52,6 @@ export default async function AlunoPage({
     });
   }
 
-  const { data: presencas } = await supabase
-    .from("presencas")
-    .select("presente, aulas(titulo, data, turmas(nome))")
-    .eq("aluno_id", profile?.id)
-    .order("created_at", { ascending: false });
-
   const { data: notificacoes } = await supabase
     .from("notificacoes")
     .select("id, titulo, mensagem, tipo")
@@ -76,9 +70,14 @@ export default async function AlunoPage({
       </p>
       <div className="flex items-baseline justify-between mb-8">
         <h1 className="font-display font-semibold text-3xl">Olá, {profile?.nome}</h1>
-        <Link href="/aluno/financeiro" className="text-sm font-semibold text-accent hover:underline">
-          Ver financeiro
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/aluno/frequencia" className="text-sm font-semibold text-accent hover:underline">
+            Ver frequência
+          </Link>
+          <Link href="/aluno/financeiro" className="text-sm font-semibold text-accent hover:underline">
+            Ver financeiro
+          </Link>
+        </div>
       </div>
 
       <section className="max-w-3xl mb-8 grid sm:grid-cols-2 gap-4">
@@ -94,35 +93,6 @@ export default async function AlunoPage({
           baseHref="/aluno"
           permitirSolicitarAgendamento
         />
-      </section>
-
-      <section className="max-w-xl">
-        <h2 className="font-display font-semibold text-lg mb-3">Minha frequência</h2>
-        {!presencas || presencas.length === 0 ? (
-          <p className="text-sm text-ink/60">
-            Nenhum registro de presença ainda.
-          </p>
-        ) : (
-          <ul className="divide-y divide-line border border-line rounded-xl overflow-hidden bg-white/60">
-            {presencas.map((p: any, i: number) => (
-              <li key={i} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium">{p.aulas?.titulo}</p>
-                  <p className="text-xs text-ink/50">
-                    {p.aulas?.turmas?.nome} · {p.aulas?.data}
-                  </p>
-                </div>
-                <span
-                  className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    p.presente ? "bg-good/15 text-good" : "bg-bad/15 text-bad"
-                  }`}
-                >
-                  {p.presente ? "Presente" : "Ausente"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
     </main>
   );
