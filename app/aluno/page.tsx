@@ -88,6 +88,7 @@ export default async function AlunoPage({
           mesRef={mesRef}
           aulasPorDia={aulasPorDia}
           baseHref="/aluno"
+          permitirSolicitarAgendamento
         />
       </section>
 

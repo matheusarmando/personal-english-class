@@ -75,3 +75,50 @@ export async function excluirAgendamentoAvulso(agendamentoId: string) {
   revalidatePath("/professor/agendamentos");
   revalidatePath("/professor");
 }
+
+export async function aprovarSolicitacao(solicitacaoId: string, formData: FormData) {
+  const supabase = createClient();
+  const resposta = ((formData.get("resposta") as string) || "").trim() || null;
+
+  const { data: solicitacao } = await supabase
+    .from("solicitacoes_agendamento")
+    .select("tipo, aula_horario_id, data_hora_sugerida")
+    .eq("id", solicitacaoId)
+    .single();
+
+  if (solicitacao?.aula_horario_id) {
+    if (solicitacao.tipo === "remarcacao" && solicitacao.data_hora_sugerida) {
+      await supabase
+        .from("aluno_horarios")
+        .update({ data_hora: solicitacao.data_hora_sugerida })
+        .eq("id", solicitacao.aula_horario_id);
+    } else if (solicitacao.tipo === "cancelamento") {
+      await supabase
+        .from("aluno_horarios")
+        .update({ status: "cancelada" })
+        .eq("id", solicitacao.aula_horario_id);
+    }
+  }
+
+  await supabase
+    .from("solicitacoes_agendamento")
+    .update({ status: "aprovada", resposta_professor: resposta, respondida_em: new Date().toISOString() })
+    .eq("id", solicitacaoId);
+
+  revalidatePath("/professor/agendamentos");
+  revalidatePath("/professor");
+  revalidatePath("/aluno");
+}
+
+export async function recusarSolicitacao(solicitacaoId: string, formData: FormData) {
+  const supabase = createClient();
+  const resposta = ((formData.get("resposta") as string) || "").trim() || null;
+
+  await supabase
+    .from("solicitacoes_agendamento")
+    .update({ status: "recusada", resposta_professor: resposta, respondida_em: new Date().toISOString() })
+    .eq("id", solicitacaoId);
+
+  revalidatePath("/professor/agendamentos");
+  revalidatePath("/aluno");
+}
