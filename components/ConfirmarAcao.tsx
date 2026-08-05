@@ -31,7 +31,10 @@ export default function ConfirmarAcao({
       <button
         type="button"
         onClick={() => setAberto(true)}
-        className={className ?? "text-xs font-semibold text-bad hover:underline"}
+        className={
+          className ??
+          "rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-accent transition-colors"
+        }
       >
         {rotulo}
       </button>
@@ -52,7 +55,7 @@ export default function ConfirmarAcao({
                 type="button"
                 onClick={() => setAberto(false)}
                 disabled={executando}
-                className="rounded-lg border border-line px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                className="rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:border-accent transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
