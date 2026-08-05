@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
 import { criarAgendamentoAvulso, type ResultadoAgendamento } from "./actions";
+import CampoTelefone from "@/components/campos/CampoTelefone";
 
 function formatarHora(iso: string): string {
   return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -73,12 +74,7 @@ export default function FormNovoAgendamento() {
         <label className="block text-sm mb-1" htmlFor="telefone">
           Telefone
         </label>
-        <input
-          id="telefone"
-          name="telefone"
-          type="tel"
-          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <CampoTelefone id="telefone" name="telefone" />
       </div>
 
       <div>

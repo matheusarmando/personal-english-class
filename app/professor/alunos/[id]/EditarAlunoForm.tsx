@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { atualizarAluno, type ResultadoAluno } from "../actions";
+import CampoTelefone from "@/components/campos/CampoTelefone";
 
 type Aluno = {
   id: string;
@@ -59,13 +60,7 @@ export default function EditarAlunoForm({ aluno }: { aluno: Aluno }) {
         <label className="block text-sm mb-1" htmlFor="telefone">
           Telefone
         </label>
-        <input
-          id="telefone"
-          name="telefone"
-          type="tel"
-          defaultValue={aluno.telefone ?? ""}
-          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <CampoTelefone id="telefone" name="telefone" defaultValue={aluno.telefone} />
       </div>
 
       <div>
