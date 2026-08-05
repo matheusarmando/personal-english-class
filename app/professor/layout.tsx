@@ -14,6 +14,7 @@ export default async function ProfessorLayout({
       nome={profile?.nome}
       papel="Professor"
       cadastroHref="/professor/cadastro"
+      painelHref="/professor"
       sidebar={<Sidebar />}
     >
       {children}

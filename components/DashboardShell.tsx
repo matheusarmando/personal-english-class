@@ -7,12 +7,14 @@ export default function DashboardShell({
   nome,
   papel,
   cadastroHref,
+  painelHref,
   sidebar,
   children,
 }: {
   nome?: string | null;
   papel: string;
   cadastroHref?: string;
+  painelHref?: string;
   sidebar: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -28,6 +30,7 @@ export default function DashboardShell({
         nome={nome}
         papel={papel}
         cadastroHref={cadastroHref}
+        painelHref={painelHref}
         onToggleSidebar={() => setColapsada((v) => !v)}
       />
       <div className="flex flex-1 min-h-0">

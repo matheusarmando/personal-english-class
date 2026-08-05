@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { sair } from "@/app/actions";
-import { IconLogout, IconKey, IconMenu } from "./icons";
+import { IconLogout, IconKey, IconMenu, IconChevron } from "./icons";
 
 function iniciais(nome?: string | null) {
   if (!nome) return "?";
@@ -19,11 +19,13 @@ export default function Topbar({
   nome,
   papel,
   cadastroHref,
+  painelHref = "/",
   onToggleSidebar,
 }: {
   nome?: string | null;
   papel: string;
   cadastroHref?: string;
+  painelHref?: string;
   onToggleSidebar?: () => void;
 }) {
   const [aberto, setAberto] = useState(false);
@@ -41,7 +43,7 @@ export default function Topbar({
             <IconMenu />
           </button>
         )}
-        <Link href="/" className="font-display font-bold text-base tracking-tight">
+        <Link href={painelHref} className="font-display font-bold text-base tracking-tight">
           Personal Class
         </Link>
       </div>
@@ -56,6 +58,7 @@ export default function Topbar({
             {iniciais(nome)}
           </span>
           <span className="text-sm font-semibold hidden sm:block">{nome}</span>
+          <IconChevron className={`text-ink/40 hidden sm:block transition-transform ${aberto ? "rotate-180" : ""}`} />
         </button>
 
         {aberto && (

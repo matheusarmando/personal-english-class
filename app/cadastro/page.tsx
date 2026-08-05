@@ -16,13 +16,11 @@ export default function CadastroPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setInfo(null);
 
     if (password !== confirmPassword) {
       setError("As senhas não conferem.");
@@ -58,10 +56,7 @@ export default function CadastroPage() {
     }
 
     if (!data.session) {
-      setInfo(
-        "Cadastro criado. Verifique seu e-mail para confirmar a conta antes de entrar."
-      );
-      setLoading(false);
+      router.push(`/confirme-email?email=${encodeURIComponent(email)}`);
       return;
     }
 
@@ -163,12 +158,6 @@ export default function CadastroPage() {
         {error && (
           <p className="text-sm text-bad mb-4" role="alert">
             {error}
-          </p>
-        )}
-
-        {info && (
-          <p className="text-sm text-good mb-4" role="status">
-            {info}
           </p>
         )}
 

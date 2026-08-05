@@ -4,9 +4,12 @@ import { statusEfetivo } from "@/lib/financeiro/status";
 import { cancelarContrato } from "../actions";
 import EditarContratoForm from "./EditarContratoForm";
 import AcoesParcela from "./AcoesParcela";
+import ConfirmarAcao from "@/components/ConfirmarAcao";
 
 const LABEL_PLANO: Record<string, string> = {
   mensal: "Mensal",
+  bimestral: "Bimestral",
+  trimestral: "Trimestral",
   semestral: "Semestral",
   anual: "Anual",
 };
@@ -78,14 +81,13 @@ export default async function DetalheContratoPage({ params }: { params: { id: st
           </p>
         </div>
         {contrato.status === "ativo" && (
-          <form action={cancelarContrato.bind(null, contrato.id)}>
-            <button
-              type="submit"
-              className="text-xs font-semibold text-bad hover:underline"
-            >
-              Cancelar contrato
-            </button>
-          </form>
+          <ConfirmarAcao
+            action={cancelarContrato.bind(null, contrato.id)}
+            rotulo="Cancelar contrato"
+            titulo="Cancelar este contrato?"
+            mensagem="Todas as parcelas ainda pendentes serão canceladas. Parcelas já pagas não são afetadas. Essa ação não pode ser desfeita."
+            className="rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
+          />
         )}
       </div>
 

@@ -2,6 +2,7 @@ import { createClient, getProfile } from "@/lib/supabase/server";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
 import { excluirAgendamentoAvulso } from "./actions";
 import FormNovoAgendamento from "./FormNovoAgendamento";
+import ConfirmarAcao from "@/components/ConfirmarAcao";
 
 export default async function AgendamentosPage() {
   const profile = await getProfile();
@@ -57,14 +58,12 @@ export default async function AgendamentosPage() {
                         })}
                       </p>
                     </div>
-                    <form action={excluirAgendamentoAvulso.bind(null, a.id)}>
-                      <button
-                        type="submit"
-                        className="text-xs text-bad hover:underline"
-                      >
-                        Excluir
-                      </button>
-                    </form>
+                    <ConfirmarAcao
+                      action={excluirAgendamentoAvulso.bind(null, a.id)}
+                      rotulo="Excluir"
+                      titulo="Excluir este agendamento?"
+                      mensagem={`Remove o agendamento de ${a.nome}. Essa ação não pode ser desfeita.`}
+                    />
                   </li>
                 );
               })}

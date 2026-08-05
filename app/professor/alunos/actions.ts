@@ -90,8 +90,20 @@ export async function adicionarHorario(alunoId: string, formData: FormData): Pro
 
   if (!data || !hora) return { ok: false, conflito: false, erro: "Preencha data e hora." };
 
-  const { data: aluno } = await supabase.from("alunos").select("professor_id").eq("id", alunoId).single();
+  const { data: aluno } = await supabase
+    .from("alunos")
+    .select("professor_id, link_aula")
+    .eq("id", alunoId)
+    .single();
   if (!aluno) return { ok: false, conflito: false, erro: "Aluno não encontrado." };
+
+  // Só grava um link na aula se ele for diferente do padrão do aluno —
+  // assim, aulas que aceitaram o padrão continuam acompanhando esse
+  // padrão se ele mudar depois; só quem editou pontualmente "trava" o
+  // próprio link.
+  const linkAulaSubmetido = ((formData.get("link_aula") as string) || "").trim();
+  const linkAulaOverride =
+    linkAulaSubmetido && linkAulaSubmetido !== (aluno.link_aula ?? "").trim() ? linkAulaSubmetido : null;
 
   const { data: professor } = await supabase
     .from("profiles")
@@ -116,7 +128,9 @@ export async function adicionarHorario(alunoId: string, formData: FormData): Pro
     }
   }
 
-  await supabase.from("aluno_horarios").insert({ aluno_id: alunoId, data_hora: inicio.toISOString() });
+  await supabase
+    .from("aluno_horarios")
+    .insert({ aluno_id: alunoId, data_hora: inicio.toISOString(), link_aula: linkAulaOverride });
 
   revalidatePath(`/professor/alunos/${alunoId}`);
   return { ok: true };

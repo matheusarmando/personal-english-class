@@ -12,6 +12,11 @@ export default async function NovoContratoPage() {
     .eq("ativo", true)
     .order("nome");
 
+  const { data: planos } = await supabase
+    .from("planos_config")
+    .select("tipo_plano, descricao, numero_parcelas")
+    .order("numero_parcelas");
+
   const hoje = new Date().toISOString().slice(0, 10);
 
   return (
@@ -60,9 +65,11 @@ export default async function NovoContratoPage() {
             defaultValue="mensal"
             className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
           >
-            <option value="mensal">Mensal (1 parcela, renovável)</option>
-            <option value="semestral">Semestral (6 parcelas)</option>
-            <option value="anual">Anual (12 parcelas)</option>
+            {(planos ?? []).map((p) => (
+              <option key={p.tipo_plano} value={p.tipo_plano}>
+                {p.descricao}
+              </option>
+            ))}
           </select>
         </div>
 

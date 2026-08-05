@@ -7,9 +7,22 @@ function formatarHora(iso: string): string {
   return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
-export default function FormAdicionarHorario({ alunoId }: { alunoId: string }) {
+function ehDataPassada(data: string): boolean {
+  if (!data) return false;
+  const hojeISO = new Date().toISOString().slice(0, 10);
+  return data < hojeISO;
+}
+
+export default function FormAdicionarHorario({
+  alunoId,
+  linkPadrao,
+}: {
+  alunoId: string;
+  linkPadrao?: string | null;
+}) {
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoAgendamento | null>(null);
+  const [data, setData] = useState("");
 
   async function handleSubmit(formData: FormData) {
     setEnviando(true);
@@ -27,6 +40,8 @@ export default function FormAdicionarHorario({ alunoId }: { alunoId: string }) {
         name="data"
         type="date"
         required
+        value={data}
+        onChange={(e) => setData(e.target.value)}
         className="rounded-lg border border-line bg-white px-3 py-2 text-sm"
       />
       <input
@@ -35,6 +50,13 @@ export default function FormAdicionarHorario({ alunoId }: { alunoId: string }) {
         required
         className="rounded-lg border border-line bg-white px-3 py-2 text-sm"
       />
+      <input
+        name="link_aula"
+        type="url"
+        placeholder="Link da aula (padrão do aluno se deixar em branco)"
+        defaultValue={linkPadrao ?? ""}
+        className="flex-1 min-w-[14rem] rounded-lg border border-line bg-white px-3 py-2 text-sm"
+      />
       <button
         type="submit"
         disabled={enviando}
@@ -42,6 +64,12 @@ export default function FormAdicionarHorario({ alunoId }: { alunoId: string }) {
       >
         {enviando ? "Adicionando..." : "Adicionar aula"}
       </button>
+
+      {ehDataPassada(data) && (
+        <p className="w-full text-xs text-warn bg-warn/10 border border-warn/30 rounded-lg px-3 py-2">
+          Isso é um lançamento retroativo — a data escolhida já passou.
+        </p>
+      )}
 
       {resultado && !resultado.ok && resultado.conflito && (
         <div className="w-full text-xs text-bad bg-bad/10 border border-bad/30 rounded-lg p-3">

@@ -10,7 +10,7 @@ export default async function GestaoLayout({
   const profile = await getProfile();
 
   return (
-    <DashboardShell nome={profile?.nome} papel="Gestão" sidebar={<Sidebar />}>
+    <DashboardShell nome={profile?.nome} papel="Gestão" painelHref="/gestao" sidebar={<Sidebar />}>
       {children}
     </DashboardShell>
   );

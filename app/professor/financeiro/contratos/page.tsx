@@ -4,6 +4,8 @@ import EstadoVazio from "@/components/EstadoVazio";
 
 const LABEL_PLANO: Record<string, string> = {
   mensal: "Mensal",
+  bimestral: "Bimestral",
+  trimestral: "Trimestral",
   semestral: "Semestral",
   anual: "Anual",
 };
@@ -31,6 +33,10 @@ export default async function ContratosPage({
   if (searchParams.status) query = query.eq("status", searchParams.status);
 
   const { data: contratos } = await query.order("created_at", { ascending: false });
+  const { data: planos } = await supabase
+    .from("planos_config")
+    .select("tipo_plano, descricao")
+    .order("numero_parcelas");
 
   const contratosFiltrados = searchParams.aluno
     ? (contratos ?? []).filter((c: any) =>
@@ -84,9 +90,11 @@ export default async function ContratosPage({
           className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
         >
           <option value="">Todos os planos</option>
-          <option value="mensal">Mensal</option>
-          <option value="semestral">Semestral</option>
-          <option value="anual">Anual</option>
+          {(planos ?? []).map((p) => (
+            <option key={p.tipo_plano} value={p.tipo_plano}>
+              {LABEL_PLANO[p.tipo_plano] ?? p.tipo_plano}
+            </option>
+          ))}
         </select>
         <select
           name="status"

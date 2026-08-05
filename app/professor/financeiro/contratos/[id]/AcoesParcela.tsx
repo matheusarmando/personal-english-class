@@ -36,8 +36,13 @@ export default function AcoesParcela({
   const [formAberto, setFormAberto] = useState<"pagamento" | "estorno" | "comprovante" | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<{ ok: boolean; erro: string | null } | null>(null);
+  const [metodoSelecionado, setMetodoSelecionado] = useState("pix");
 
   async function handlePagamento(formData: FormData) {
+    if (formData.get("metodo_pagamento") === "outro") {
+      const descricao = (formData.get("metodo_outro_texto") as string)?.trim();
+      formData.set("metodo_pagamento", descricao || "outro");
+    }
     setEnviando(true);
     const res = await registrarPagamento(parcelaId, formData);
     setResultado(res.ok ? { ok: true, erro: null } : { ok: false, erro: res.erro });
@@ -72,12 +77,12 @@ export default function AcoesParcela({
 
   return (
     <div className="text-sm">
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2">
         {(statusEfetivo === "pendente" || statusEfetivo === "atrasada") && (
           <button
             type="button"
             onClick={() => setFormAberto(formAberto === "pagamento" ? null : "pagamento")}
-            className="text-xs font-semibold text-accent hover:underline"
+            className="rounded-lg bg-accentSoft text-accent px-3 py-1.5 text-xs font-semibold hover:bg-accent hover:text-white transition-colors"
           >
             Registrar pagamento
           </button>
@@ -86,7 +91,7 @@ export default function AcoesParcela({
           <button
             type="button"
             onClick={() => setFormAberto(formAberto === "estorno" ? null : "estorno")}
-            className="text-xs font-semibold text-bad hover:underline"
+            className="rounded-lg border border-bad text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
           >
             Estornar
           </button>
@@ -96,7 +101,7 @@ export default function AcoesParcela({
             href={`/api/financeiro/recibos/${parcelaId}`}
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-semibold text-ink/60 hover:underline"
+            className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-ink/70 hover:border-accent hover:text-accent transition-colors"
           >
             Baixar recibo
           </a>
@@ -105,7 +110,7 @@ export default function AcoesParcela({
           <button
             type="button"
             onClick={() => setFormAberto(formAberto === "comprovante" ? null : "comprovante")}
-            className="text-xs font-semibold text-warn hover:underline"
+            className="rounded-lg border border-warn text-warn px-3 py-1.5 text-xs font-semibold hover:bg-warn hover:text-white transition-colors"
           >
             Ver comprovante enviado
           </button>
@@ -158,7 +163,8 @@ export default function AcoesParcela({
             <select
               id={`metodo_${parcelaId}`}
               name="metodo_pagamento"
-              defaultValue="pix"
+              value={metodoSelecionado}
+              onChange={(e) => setMetodoSelecionado(e.target.value)}
               className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-xs"
             >
               <option value="pix">Pix</option>
@@ -168,6 +174,20 @@ export default function AcoesParcela({
               <option value="outro">Outro</option>
             </select>
           </div>
+          {metodoSelecionado === "outro" && (
+            <div className="col-span-2">
+              <label className="block text-xs mb-1" htmlFor={`metodo_outro_${parcelaId}`}>
+                Qual?
+              </label>
+              <input
+                id={`metodo_outro_${parcelaId}`}
+                name="metodo_outro_texto"
+                required
+                placeholder="Ex.: boleto, cheque..."
+                className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-xs"
+              />
+            </div>
+          )}
           <div className="col-span-2">
             <button
               type="submit"
