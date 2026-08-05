@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { senhaValida } from "@/lib/validacao";
 
 type Papel = "professor" | "aluno";
 
@@ -28,6 +29,11 @@ export default function CadastroPage() {
       return;
     }
 
+    if (!senhaValida(password)) {
+      setError("A senha precisa ter 8-60 caracteres, com ao menos 1 letra maiúscula e 1 número.");
+      return;
+    }
+
     setLoading(true);
 
     const supabase = createClient();
@@ -36,6 +42,12 @@ export default function CadastroPage() {
       password,
       options: {
         data: { nome, role_solicitado: papel },
+        // Sem isso, o link do e-mail de confirmação usa a "Site URL"
+        // configurada no dashboard do Supabase como destino — se
+        // aquela config estiver desatualizada (ex.: localhost), TODO
+        // link de confirmação sai errado. Fixando aqui, o link sempre
+        // aponta pro domínio de onde o cadastro realmente veio.
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     });
 
@@ -126,11 +138,14 @@ export default function CadastroPage() {
           id="password"
           type="password"
           required
-          minLength={6}
+          minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full mb-1 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
         />
+        <p className="text-xs text-ink/50 mb-4">
+          Mínimo 8 caracteres, com 1 letra maiúscula e 1 número.
+        </p>
 
         <label className="block text-sm mb-1" htmlFor="confirmPassword">
           Confirmar senha
@@ -139,7 +154,7 @@ export default function CadastroPage() {
           id="confirmPassword"
           type="password"
           required
-          minLength={6}
+          minLength={8}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           className="w-full mb-6 rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"

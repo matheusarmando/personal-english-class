@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
-import { criarAluno } from "./actions";
+import NovoAlunoForm from "./NovoAlunoForm";
 
 export default async function AlunosPage({
   searchParams,
@@ -36,98 +36,7 @@ export default async function AlunosPage({
       <div className="max-w-2xl space-y-10">
         <section>
           <h2 className="font-display font-semibold text-lg mb-3">Novo aluno</h2>
-          <form
-            action={criarAluno}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/70 border border-line rounded-xl p-6"
-          >
-            <div className="sm:col-span-2">
-              <label className="block text-sm mb-1" htmlFor="nome">
-                Nome <span className="text-bad">*</span>
-              </label>
-              <input
-                id="nome"
-                name="nome"
-                required
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="email">
-                E-mail
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="telefone">
-                Telefone
-              </label>
-              <input
-                id="telefone"
-                name="telefone"
-                type="tel"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1" htmlFor="data_nascimento">
-                Data de nascimento
-              </label>
-              <input
-                id="data_nascimento"
-                name="data_nascimento"
-                type="date"
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-sm mb-1" htmlFor="link_aula">
-                Link da aula
-              </label>
-              <input
-                id="link_aula"
-                name="link_aula"
-                type="url"
-                placeholder="https://meet.google.com/..."
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <p className="sm:col-span-2 text-xs text-ink/50">
-              Cobrança e forma de pagamento agora ficam em{" "}
-              <span className="font-medium">Financeiro → Novo contrato</span>, depois de cadastrar o aluno.
-            </p>
-
-            <div className="sm:col-span-2 flex items-center gap-2">
-              <input
-                id="ativo"
-                name="ativo"
-                type="checkbox"
-                defaultChecked
-                className="rounded border-line"
-              />
-              <label className="text-sm" htmlFor="ativo">
-                Aluno ativo
-              </label>
-            </div>
-
-            <div className="sm:col-span-2">
-              <button
-                type="submit"
-                className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
-              >
-                Cadastrar aluno
-              </button>
-            </div>
-          </form>
+          <NovoAlunoForm />
         </section>
 
         <section>

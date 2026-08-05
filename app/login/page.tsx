@@ -30,6 +30,17 @@ function LoginForm() {
       return;
     }
 
+    // Camada extra além do que o Supabase Auth já deveria bloquear:
+    // se por algum motivo uma sessão saiu sem e-mail confirmado (ex.:
+    // configuração de confirmação de e-mail desligada no projeto),
+    // barra aqui também em vez de deixar entrar.
+    if (!data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setError("Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.");
+      setLoading(false);
+      return;
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
