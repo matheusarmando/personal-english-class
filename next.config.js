@@ -12,6 +12,24 @@ const nextConfig = {
       dynamic: 0,
     },
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // Sem isso, a tela de login e as telas financeiras podem
+          // ser carregadas dentro de um <iframe> em site malicioso
+          // (clickjacking). frame-ancestors cobre os navegadores que
+          // priorizam CSP; X-Frame-Options é o fallback pros que não.
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
