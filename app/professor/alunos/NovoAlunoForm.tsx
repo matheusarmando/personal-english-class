@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { criarAluno, type ResultadoAluno } from "./actions";
+import CampoTelefone from "@/components/campos/CampoTelefone";
 
 export default function NovoAlunoForm() {
   const [enviando, setEnviando] = useState(false);
@@ -50,12 +51,7 @@ export default function NovoAlunoForm() {
         <label className="block text-sm mb-1" htmlFor="telefone">
           Telefone
         </label>
-        <input
-          id="telefone"
-          name="telefone"
-          type="tel"
-          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <CampoTelefone id="telefone" name="telefone" />
       </div>
 
       <div>
