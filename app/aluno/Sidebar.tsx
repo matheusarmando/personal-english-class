@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconUser, IconDashboard, IconWallet, IconExam } from "@/components/icons";
+import { IconUser, IconDashboard, IconWallet, IconExam, IconChat } from "@/components/icons";
 
 const NAV_ITEMS = [
   { label: "Painel", href: "/aluno", icon: IconDashboard },
   { label: "Tarefas", href: "/aluno/tarefas", icon: IconExam },
+  { label: "Chat", href: "/aluno/chat", icon: IconChat },
   { label: "Financeiro", href: "/aluno/financeiro", icon: IconWallet },
   { label: "Cadastro", href: "/aluno/cadastro", icon: IconUser },
 ];
