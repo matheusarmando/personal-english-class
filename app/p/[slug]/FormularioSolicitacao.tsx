@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { solicitarAula } from "./actions";
 import CampoTelefone from "@/components/campos/CampoTelefone";
+import CampoEmail from "@/components/campos/CampoEmail";
 
 export default function FormularioSolicitacao({ slug }: { slug: string }) {
   const [enviando, setEnviando] = useState(false);
@@ -42,12 +43,7 @@ export default function FormularioSolicitacao({ slug }: { slug: string }) {
         <label className="block text-sm mb-1" htmlFor="email">
           E-mail
         </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <CampoEmail id="email" name="email" />
       </div>
 
       <div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { atualizarAluno, type ResultadoAluno } from "../actions";
 import CampoTelefone from "@/components/campos/CampoTelefone";
+import CampoEmail from "@/components/campos/CampoEmail";
 
 type Aluno = {
   id: string;
@@ -47,13 +48,7 @@ export default function EditarAlunoForm({ aluno }: { aluno: Aluno }) {
         <label className="block text-sm mb-1" htmlFor="email">
           E-mail
         </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          defaultValue={aluno.email ?? ""}
-          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-        />
+        <CampoEmail id="email" name="email" defaultValue={aluno.email} />
       </div>
 
       <div>

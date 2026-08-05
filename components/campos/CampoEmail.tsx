@@ -1,18 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { telefoneValido } from "@/lib/validacao";
+import { emailValido } from "@/lib/validacao";
 
 const CLASSE_BASE =
   "w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent";
 
-/**
- * Sem máscara ativa enquanto digita — só um placeholder mostrando o
- * formato esperado. A validação de verdade roda no blur (e, de
- * qualquer forma, no backend); reformatar a cada tecla atrapalha
- * quem quer colar ou editar um número já digitado.
- */
-export default function CampoTelefone({
+export default function CampoEmail({
   id,
   name,
   defaultValue,
@@ -29,7 +23,7 @@ export default function CampoTelefone({
 
   function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
     const valor = e.target.value.trim();
-    setErro(valor && !telefoneValido(valor) ? "Telefone em formato inválido." : null);
+    setErro(valor && !emailValido(valor) ? "E-mail em formato inválido." : null);
   }
 
   return (
@@ -37,10 +31,10 @@ export default function CampoTelefone({
       <input
         id={id}
         name={name}
-        type="tel"
+        type="email"
         required={required}
         defaultValue={defaultValue ?? undefined}
-        placeholder="(11) 99999-9999"
+        placeholder="nome@exemplo.com"
         onBlur={handleBlur}
         className={className ?? `${CLASSE_BASE} ${erro ? "border-bad" : "border-line"}`}
       />
