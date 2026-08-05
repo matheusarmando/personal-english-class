@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { GoogleCalendarProvider } from "@/lib/google-calendar/providers/google";
 import { converterParaInstanteUTC } from "@/lib/google-calendar/timezone";
+import { emailValido, telefoneValido } from "@/lib/validacao";
 
 export type ResultadoAgendamento =
   | { ok: true }
@@ -27,6 +28,14 @@ export async function criarAgendamentoAvulso(formData: FormData): Promise<Result
   const forcarAgendamento = formData.get("forcar_agendamento") === "on";
 
   if (!data || !hora) return { ok: false, conflito: false, erro: "Preencha data e hora." };
+  // type="email"/type="tel" no input só ajuda o teclado do navegador —
+  // não impede um POST forjado com valor qualquer, daí a checagem aqui.
+  if (email && !emailValido(email)) {
+    return { ok: false, conflito: false, erro: "E-mail em formato inválido." };
+  }
+  if (telefone && !telefoneValido(telefone)) {
+    return { ok: false, conflito: false, erro: "Telefone em formato inválido." };
+  }
 
   const inicio = converterParaInstanteUTC(data, hora, profile.timezone ?? "America/Sao_Paulo");
   const fim = new Date(inicio.getTime() + DURACAO_PADRAO_MINUTOS * 60 * 1000);

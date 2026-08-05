@@ -5,6 +5,9 @@ import { redirect } from "next/navigation";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { GoogleCalendarProvider } from "@/lib/google-calendar/providers/google";
 import { converterParaInstanteUTC } from "@/lib/google-calendar/timezone";
+import { emailValido, telefoneValido } from "@/lib/validacao";
+
+export type ResultadoAluno = { ok: true } | { ok: false; erro: string };
 
 export type ResultadoAgendamento =
   | { ok: true }
@@ -22,27 +25,52 @@ function lerDadosAluno(formData: FormData) {
   };
 }
 
-export async function criarAluno(formData: FormData) {
+/**
+ * O type="email"/type="tel" do input só ajuda o navegador a formatar
+ * o teclado — nada impede um POST forjado (ex.: type trocado via
+ * devtools) com valor qualquer. Isso é o que de fato bloqueia.
+ */
+function validarContato(email: string | null, telefone: string | null): string | null {
+  if (email && !emailValido(email)) return "E-mail em formato inválido.";
+  if (telefone && !telefoneValido(telefone)) return "Telefone em formato inválido.";
+  return null;
+}
+
+export async function criarAluno(formData: FormData): Promise<ResultadoAluno> {
   const profile = await getProfile();
-  if (!profile) return;
+  if (!profile) return { ok: false, erro: "Não autenticado." };
+
+  const dados = lerDadosAluno(formData);
+  const erro = validarContato(dados.email, dados.telefone);
+  if (erro) return { ok: false, erro };
 
   const supabase = createClient();
 
-  await supabase.from("alunos").insert({
+  const { error } = await supabase.from("alunos").insert({
     professor_id: profile.id,
-    ...lerDadosAluno(formData),
+    ...dados,
   });
 
   revalidatePath("/professor/alunos");
+
+  if (error) return { ok: false, erro: error.message };
+  return { ok: true };
 }
 
-export async function atualizarAluno(alunoId: string, formData: FormData) {
+export async function atualizarAluno(alunoId: string, formData: FormData): Promise<ResultadoAluno> {
+  const dados = lerDadosAluno(formData);
+  const erro = validarContato(dados.email, dados.telefone);
+  if (erro) return { ok: false, erro };
+
   const supabase = createClient();
 
-  await supabase.from("alunos").update(lerDadosAluno(formData)).eq("id", alunoId);
+  const { error } = await supabase.from("alunos").update(dados).eq("id", alunoId);
 
   revalidatePath("/professor/alunos");
   revalidatePath(`/professor/alunos/${alunoId}`);
+
+  if (error) return { ok: false, erro: error.message };
+  return { ok: true };
 }
 
 export async function excluirAluno(alunoId: string) {
