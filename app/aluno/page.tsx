@@ -60,11 +60,14 @@ export default async function AlunoPage({
 
   const { data: notificacoes } = await supabase
     .from("notificacoes")
-    .select("id, titulo, mensagem")
+    .select("id, titulo, mensagem, tipo")
     .eq("destinatario_id", profile?.id)
     .eq("lida", false)
     .order("created_at", { ascending: false })
-    .limit(5);
+    .limit(10);
+
+  const avisosFinanceiros = (notificacoes ?? []).filter((n) => n.tipo !== "aviso_professor");
+  const avisosProfessor = (notificacoes ?? []).filter((n) => n.tipo === "aviso_professor");
 
   return (
     <main className="px-8 py-10">
@@ -78,8 +81,9 @@ export default async function AlunoPage({
         </Link>
       </div>
 
-      <section className="max-w-3xl mb-8">
-        <WidgetNotificacoes notificacoes={notificacoes ?? []} />
+      <section className="max-w-3xl mb-8 grid sm:grid-cols-2 gap-4">
+        <WidgetNotificacoes titulo="Avisos do professor" notificacoes={avisosProfessor} />
+        <WidgetNotificacoes titulo="Avisos financeiros" notificacoes={avisosFinanceiros} />
       </section>
 
       <section className="max-w-3xl mb-10">
