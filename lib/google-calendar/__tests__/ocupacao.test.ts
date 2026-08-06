@@ -10,6 +10,7 @@ function evento(overrides: Partial<EventoParaOcupacao>): EventoParaOcupacao {
     transparency: "opaque",
     status: "confirmed",
     attendeeResponse: null,
+    criadoPelaPlataforma: false,
     ...overrides,
   };
 }
@@ -47,6 +48,13 @@ describe("calcularIntervalosOcupados", () => {
       { ignorarDiaInteiro: false }
     );
     expect(ocupados).toHaveLength(2);
+  });
+
+  it("ignora evento criado pela própria plataforma (Fase 2 — evita conflito consigo mesma)", () => {
+    const ocupados = calcularIntervalosOcupados([evento({ criadoPelaPlataforma: true })], {
+      ignorarDiaInteiro: false,
+    });
+    expect(ocupados).toHaveLength(0);
   });
 
   it("ignora dia inteiro só quando a conta está configurada pra isso", () => {

@@ -57,6 +57,7 @@ export async function atualizarConfiguracoesGoogleCalendar(formData: FormData) {
   const admin = createAdminClient();
   const ignorarDiaInteiro = formData.get("ignorar_dia_inteiro") === "on";
   const ocultarTituloParaAluno = formData.get("ocultar_titulo_para_aluno") === "on";
+  const escritaHabilitada = formData.get("escrita_habilitada") === "on";
   const calendariosSelecionados = formData.getAll("calendarios_selecionados") as string[];
 
   await admin
@@ -64,6 +65,7 @@ export async function atualizarConfiguracoesGoogleCalendar(formData: FormData) {
     .update({
       ignorar_dia_inteiro: ignorarDiaInteiro,
       ocultar_titulo_para_aluno: ocultarTituloParaAluno,
+      escrita_habilitada: escritaHabilitada,
       calendarios_selecionados: calendariosSelecionados,
     })
     .eq("professor_id", profile.id);

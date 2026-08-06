@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { GoogleCalendarProvider } from "@/lib/google-calendar/providers/google";
 import { converterParaInstanteUTC } from "@/lib/google-calendar/timezone";
+import { sincronizarCriacaoDaAula, sincronizarCancelamentoDaAula } from "@/lib/google-calendar/escrita";
+import { DURACAO_PADRAO_AULA_MINUTOS } from "@/lib/calendario";
 import { emailValido, telefoneValido } from "@/lib/validacao";
 
 export type ResultadoAluno = { ok: true } | { ok: false; erro: string };
@@ -80,8 +82,6 @@ export async function excluirAluno(alunoId: string) {
   redirect("/professor/alunos");
 }
 
-const DURACAO_PADRAO_MINUTOS = 60;
-
 export async function adicionarHorario(alunoId: string, formData: FormData): Promise<ResultadoAgendamento> {
   const supabase = createClient();
   const data = formData.get("data") as string;
@@ -92,7 +92,7 @@ export async function adicionarHorario(alunoId: string, formData: FormData): Pro
 
   const { data: aluno } = await supabase
     .from("alunos")
-    .select("professor_id, link_aula")
+    .select("nome, professor_id, link_aula")
     .eq("id", alunoId)
     .single();
   if (!aluno) return { ok: false, conflito: false, erro: "Aluno não encontrado." };
@@ -112,7 +112,7 @@ export async function adicionarHorario(alunoId: string, formData: FormData): Pro
     .single();
 
   const inicio = converterParaInstanteUTC(data, hora, professor?.timezone ?? "America/Sao_Paulo");
-  const fim = new Date(inicio.getTime() + DURACAO_PADRAO_MINUTOS * 60 * 1000);
+  const fim = new Date(inicio.getTime() + DURACAO_PADRAO_AULA_MINUTOS * 60 * 1000);
 
   if (!forcarAgendamento) {
     const provider = new GoogleCalendarProvider(supabase);
@@ -128,18 +128,50 @@ export async function adicionarHorario(alunoId: string, formData: FormData): Pro
     }
   }
 
-  await supabase
+  const { data: novoHorario } = await supabase
     .from("aluno_horarios")
-    .insert({ aluno_id: alunoId, data_hora: inicio.toISOString(), link_aula: linkAulaOverride });
+    .insert({ aluno_id: alunoId, data_hora: inicio.toISOString(), link_aula: linkAulaOverride })
+    .select("id")
+    .single();
 
   revalidatePath(`/professor/alunos/${alunoId}`);
+
+  // Best-effort — nunca pode falhar a criação da aula em si. Roda
+  // inline (não é fire-and-forget) porque em serverless não há
+  // garantia de a função continuar viva depois da action retornar;
+  // fetchComRetry já tem timeout/tentativas limitadas, então o
+  // atraso aqui é curto e previsível.
+  if (novoHorario) {
+    await sincronizarCriacaoDaAula(supabase, aluno.professor_id, {
+      aulaId: novoHorario.id,
+      tipo: "regular",
+      titulo: `Aula com ${aluno.nome}`,
+      inicio,
+      fim,
+      timeZone: professor?.timezone ?? "America/Sao_Paulo",
+      linkAula: linkAulaOverride ?? aluno.link_aula,
+    }).catch(() => {});
+  }
+
   return { ok: true };
 }
 
 export async function removerHorario(alunoId: string, horarioId: string) {
   const supabase = createClient();
+
+  const [{ data: aluno }, { data: horario }] = await Promise.all([
+    supabase.from("alunos").select("professor_id").eq("id", alunoId).maybeSingle(),
+    supabase.from("aluno_horarios").select("google_event_id").eq("id", horarioId).maybeSingle(),
+  ]);
+
   await supabase.from("aluno_horarios").delete().eq("id", horarioId);
   revalidatePath(`/professor/alunos/${alunoId}`);
+
+  if (aluno) {
+    await sincronizarCancelamentoDaAula(supabase, aluno.professor_id, horario?.google_event_id ?? null).catch(
+      () => {}
+    );
+  }
 }
 
 export async function concluirAula(

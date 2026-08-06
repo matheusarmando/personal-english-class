@@ -42,7 +42,7 @@ export default async function GoogleCalendarSettingsPage({
     ? await admin
         .from("google_calendar_accounts")
         .select(
-          "id, google_account_email, status, calendarios_selecionados, primary_calendar_id, ignorar_dia_inteiro, ocultar_titulo_para_aluno"
+          "id, google_account_email, status, calendarios_selecionados, primary_calendar_id, ignorar_dia_inteiro, ocultar_titulo_para_aluno, escrita_habilitada"
         )
         .eq("professor_id", profile?.id)
         .maybeSingle()
@@ -221,6 +221,27 @@ export default async function GoogleCalendarSettingsPage({
                   <label className="text-sm" htmlFor="ocultar_titulo_para_aluno">
                     Mostrar só "Ocupado" (sem título) na minha agenda dentro da plataforma
                   </label>
+                </div>
+
+                <div className="border-t border-line pt-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="escrita_habilitada"
+                      name="escrita_habilitada"
+                      type="checkbox"
+                      defaultChecked={conta.escrita_habilitada}
+                      className="rounded border-line"
+                    />
+                    <label className="text-sm font-medium" htmlFor="escrita_habilitada">
+                      Também criar e cancelar eventos automaticamente no meu Google Calendar
+                    </label>
+                  </div>
+                  <p className="text-xs text-ink/50 mt-2">
+                    Com isso ligado, cada aula que você agendar na plataforma vira um evento no
+                    seu calendário principal do Google (e some de lá quando você remove a aula
+                    aqui). A plataforma é sempre quem manda: se você editar ou apagar o evento
+                    direto no Google, a próxima alteração feita aqui pode sobrescrever.
+                  </p>
                 </div>
 
                 <button

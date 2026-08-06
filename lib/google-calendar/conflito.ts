@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { calcularIntervalosOcupados, type EventoParaOcupacao } from "./ocupacao";
 import { consultarFreeBusy } from "./client";
 import { obterAccessTokenValido } from "./tokens";
+import { CHAVE_MARCADOR_AULA } from "./constantes";
 import type { IntervaloOcupado } from "./tipos";
 
 /**
@@ -54,7 +55,7 @@ export async function verificarConflito(
 
   const { data: eventosLocais } = await supabase
     .from("google_calendar_events")
-    .select("title, starts_at, ends_at, is_all_day, transparency, status, attendee_response")
+    .select("title, starts_at, ends_at, is_all_day, transparency, status, attendee_response, raw")
     .eq("account_id", conta.id)
     .lt("starts_at", fim.toISOString())
     .gt("ends_at", inicio.toISOString());
@@ -67,6 +68,7 @@ export async function verificarConflito(
     transparency: e.transparency,
     status: e.status,
     attendeeResponse: e.attendee_response,
+    criadoPelaPlataforma: Boolean((e.raw as any)?.extendedProperties?.private?.[CHAVE_MARCADOR_AULA]),
   }));
 
   const intervalosLocais = calcularIntervalosOcupados(eventos, {
@@ -103,7 +105,13 @@ export async function verificarConflito(
     return { contaConectada: true, conflito: null };
   }
 
-  // freeBusy.query só devolve intervalos, sem título do evento.
+  // freeBusy.query só devolve intervalos, sem título nem
+  // extendedProperties do evento — não dá pra excluir eventos criados
+  // pela própria plataforma aqui como fazemos no espelho local acima.
+  // Não é um problema hoje (só existe agendamento de aula NOVA, sem
+  // conflito possível contra si mesma); vira relevante se um dia
+  // existir reagendar/editar horário — nesse caso, cancelar o evento
+  // antigo antes de checar o novo horário evita o auto-conflito.
   const intervalosAoVivo: IntervaloOcupado[] = Object.values(freeBusy.data)
     .flat()
     .map((b) => ({ titulo: null, inicio: new Date(b.start), fim: new Date(b.end) }));
