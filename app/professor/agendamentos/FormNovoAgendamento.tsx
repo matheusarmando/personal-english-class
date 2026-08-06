@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
 import { criarAgendamentoAvulso, type ResultadoAgendamento } from "./actions";
 import CampoTelefone from "@/components/campos/CampoTelefone";
@@ -11,6 +12,7 @@ function formatarHora(iso: string): string {
 }
 
 export default function FormNovoAgendamento() {
+  const router = useRouter();
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoAgendamento | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -18,9 +20,12 @@ export default function FormNovoAgendamento() {
   async function handleSubmit(formData: FormData) {
     setEnviando(true);
     const res = await criarAgendamentoAvulso(formData);
-    setResultado(res);
     setEnviando(false);
-    if (res.ok) formRef.current?.reset();
+    if (res.ok) {
+      router.push("/professor/agendamentos");
+      return;
+    }
+    setResultado(res);
   }
 
   return (

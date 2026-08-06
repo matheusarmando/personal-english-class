@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { publicarAviso, type ResultadoAviso } from "./actions";
 
 type Aluno = { id: string; nome: string };
 
 export default function NovoAvisoForm({ alunos }: { alunos: Aluno[] }) {
+  const router = useRouter();
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoAviso | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -13,9 +15,12 @@ export default function NovoAvisoForm({ alunos }: { alunos: Aluno[] }) {
   async function handleSubmit(formData: FormData) {
     setEnviando(true);
     const res = await publicarAviso(formData);
-    setResultado(res);
     setEnviando(false);
-    if (res.ok) formRef.current?.reset();
+    if (res.ok) {
+      router.push("/professor/avisos");
+      return;
+    }
+    setResultado(res);
   }
 
   return (
@@ -71,11 +76,6 @@ export default function NovoAvisoForm({ alunos }: { alunos: Aluno[] }) {
       {resultado && !resultado.ok && (
         <p className="sm:col-span-2 text-xs text-bad" role="alert">
           {resultado.erro}
-        </p>
-      )}
-      {resultado?.ok && (
-        <p className="sm:col-span-2 text-xs text-good" role="status">
-          Aviso publicado.
         </p>
       )}
 
