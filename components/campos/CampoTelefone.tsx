@@ -52,7 +52,7 @@ export default function CampoTelefone({
           value={ddi}
           onChange={(e) => setDdi(e.target.value)}
           aria-label="Código do país"
-          className={`${CLASSE_BASE} border-line shrink-0 w-[7rem]`}
+          className={`${CLASSE_BASE} border-line shrink-0 w-32 truncate`}
         >
           {DDIS.map((d) => (
             <option key={d.codigo} value={d.codigo}>
