@@ -2,12 +2,14 @@
 
 import { cloneElement, isValidElement, useState } from "react";
 import Topbar from "./Topbar";
+import type { NotificacaoSino } from "./SinoNotificacoes";
 
 export default function DashboardShell({
   nome,
   papel,
   cadastroHref,
   painelHref,
+  notificacoes,
   sidebar,
   children,
 }: {
@@ -15,6 +17,7 @@ export default function DashboardShell({
   papel: string;
   cadastroHref?: string;
   painelHref?: string;
+  notificacoes?: NotificacaoSino[];
   sidebar: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -31,6 +34,7 @@ export default function DashboardShell({
         papel={papel}
         cadastroHref={cadastroHref}
         painelHref={painelHref}
+        notificacoes={notificacoes}
         onToggleSidebar={() => setColapsada((v) => !v)}
       />
       <div className="flex flex-1 min-h-0">

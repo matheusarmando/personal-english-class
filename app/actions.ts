@@ -19,6 +19,23 @@ export async function marcarNotificacaoComoLida(id: string) {
 
   revalidatePath("/professor");
   revalidatePath("/aluno");
+  revalidatePath("/gestao");
+}
+
+export async function marcarTodasNotificacoesComoLidas() {
+  const profile = await getProfile();
+  if (!profile) return;
+
+  const supabase = createClient();
+  await supabase
+    .from("notificacoes")
+    .update({ lida: true, lida_em: new Date().toISOString() })
+    .eq("destinatario_id", profile.id)
+    .eq("lida", false);
+
+  revalidatePath("/professor");
+  revalidatePath("/aluno");
+  revalidatePath("/gestao");
 }
 
 export type ResultadoMensagem = { ok: true } | { ok: false; erro: string };
