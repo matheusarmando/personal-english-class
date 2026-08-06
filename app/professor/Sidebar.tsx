@@ -13,6 +13,7 @@ import {
   IconSettings,
   IconChevron,
   IconSearch,
+  IconChart,
 } from "@/components/icons";
 
 type NavLink = { label: string; href: string };
@@ -56,6 +57,19 @@ const NAV: NavEntry[] = [
     items: [
       { label: "Painel financeiro", href: "/professor/financeiro" },
       { label: "Contratos", href: "/professor/financeiro/contratos" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Relatórios",
+    icon: IconChart,
+    items: [
+      { label: "Visão geral", href: "/professor/relatorios" },
+      { label: "Financeiro", href: "/professor/relatorios/financeiro" },
+      { label: "Frequência", href: "/professor/relatorios/frequencia" },
+      { label: "Pedagógico", href: "/professor/relatorios/pedagogico" },
+      { label: "Agendamentos", href: "/professor/relatorios/agendamentos" },
+      { label: "Retenção", href: "/professor/relatorios/retencao" },
     ],
   },
   {
