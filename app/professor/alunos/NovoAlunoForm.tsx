@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { criarAluno, type ResultadoAluno } from "./actions";
 import CampoTelefone from "@/components/campos/CampoTelefone";
 import CampoEmail from "@/components/campos/CampoEmail";
 
 export default function NovoAlunoForm() {
+  const router = useRouter();
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoAluno | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -13,9 +15,12 @@ export default function NovoAlunoForm() {
   async function handleSubmit(formData: FormData) {
     setEnviando(true);
     const res = await criarAluno(formData);
-    setResultado(res);
     setEnviando(false);
-    if (res.ok) formRef.current?.reset();
+    if (res.ok) {
+      router.push("/professor/alunos");
+      return;
+    }
+    setResultado(res);
   }
 
   return (
@@ -90,11 +95,6 @@ export default function NovoAlunoForm() {
       {resultado && !resultado.ok && (
         <p className="sm:col-span-2 text-xs text-bad" role="alert">
           {resultado.erro}
-        </p>
-      )}
-      {resultado?.ok && (
-        <p className="sm:col-span-2 text-xs text-good" role="status">
-          Aluno cadastrado.
         </p>
       )}
 

@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
 import { excluirAgendamentoAvulso } from "./actions";
-import FormNovoAgendamento from "./FormNovoAgendamento";
 import ResponderSolicitacaoForm from "./ResponderSolicitacaoForm";
 import ConfirmarAcao from "@/components/ConfirmarAcao";
 import EstadoVazio from "@/components/EstadoVazio";
@@ -57,10 +57,20 @@ export default async function AgendamentosPage() {
 
   return (
     <main className="px-8 py-10">
-      <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
-        Área do professor
-      </p>
-      <h1 className="font-display font-semibold text-3xl mb-8">Agendamentos avulsos</h1>
+      <div className="flex items-baseline justify-between mb-8">
+        <div>
+          <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
+            Área do professor
+          </p>
+          <h1 className="font-display font-semibold text-3xl">Agendamentos avulsos</h1>
+        </div>
+        <Link
+          href="/professor/agendamentos/novo"
+          className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
+        >
+          Novo agendamento
+        </Link>
+      </div>
 
       <div className="max-w-2xl space-y-10">
         <section>
@@ -103,16 +113,6 @@ export default async function AgendamentosPage() {
               })}
             </ul>
           )}
-        </section>
-
-        <section>
-          <h2 className="font-display font-semibold text-lg mb-3">Novo agendamento</h2>
-          <p className="text-xs text-ink/50 mb-3">
-            Para compromissos pontuais que não fazem parte da agenda
-            recorrente de um aluno já cadastrado — por exemplo, um teste de
-            proficiência ou uma aula experimental.
-          </p>
-          <FormNovoAgendamento />
         </section>
 
         <section>

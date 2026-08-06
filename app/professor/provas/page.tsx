@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import EstadoVazio from "@/components/EstadoVazio";
-import NovaProvaForm from "./NovaProvaForm";
 
 const LABEL_STATUS: Record<string, string> = {
   rascunho: "Rascunho",
@@ -27,17 +26,22 @@ export default async function ProvasPage() {
 
   return (
     <main className="px-8 py-10">
-      <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
-        Área do professor
-      </p>
-      <h1 className="font-display font-semibold text-3xl mb-8">Provas</h1>
+      <div className="flex items-baseline justify-between mb-8">
+        <div>
+          <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
+            Área do professor
+          </p>
+          <h1 className="font-display font-semibold text-3xl">Provas</h1>
+        </div>
+        <Link
+          href="/professor/provas/novo"
+          className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
+        >
+          Nova prova
+        </Link>
+      </div>
 
-      <div className="max-w-2xl space-y-8">
-        <section>
-          <h2 className="font-display font-semibold text-lg mb-3">Nova prova</h2>
-          <NovaProvaForm />
-        </section>
-
+      <div className="max-w-2xl">
         <section>
           <h2 className="font-display font-semibold text-lg mb-3">Todas as provas</h2>
           {!provas || provas.length === 0 ? (

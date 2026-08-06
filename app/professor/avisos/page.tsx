@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { createClient, getProfile } from "@/lib/supabase/server";
 import EstadoVazio from "@/components/EstadoVazio";
-import NovoAvisoForm from "./NovoAvisoForm";
 
 function formatarDataHora(iso: string) {
   const dt = new Date(iso);
@@ -13,13 +13,6 @@ function formatarDataHora(iso: string) {
 export default async function AvisosPage() {
   const profile = await getProfile();
   const supabase = createClient();
-
-  const { data: alunos } = await supabase
-    .from("alunos")
-    .select("id, nome")
-    .eq("professor_id", profile?.id)
-    .eq("ativo", true)
-    .order("nome");
 
   const { data: avisos } = await supabase
     .from("notificacoes")
@@ -52,17 +45,22 @@ export default async function AvisosPage() {
 
   return (
     <main className="px-8 py-10">
-      <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
-        Área do professor
-      </p>
-      <h1 className="font-display font-semibold text-3xl mb-8">Avisos</h1>
+      <div className="flex items-baseline justify-between mb-8">
+        <div>
+          <p className="uppercase tracking-[0.2em] text-xs text-accent font-medium mb-2">
+            Área do professor
+          </p>
+          <h1 className="font-display font-semibold text-3xl">Avisos</h1>
+        </div>
+        <Link
+          href="/professor/avisos/novo"
+          className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-semibold hover:-translate-y-px transition-transform"
+        >
+          Novo aviso
+        </Link>
+      </div>
 
-      <div className="max-w-2xl space-y-8">
-        <section>
-          <h2 className="font-display font-semibold text-lg mb-3">Novo aviso</h2>
-          <NovoAvisoForm alunos={alunos ?? []} />
-        </section>
-
+      <div className="max-w-2xl">
         <section>
           <h2 className="font-display font-semibold text-lg mb-3">Avisos publicados</h2>
           {avisosAgrupados.length === 0 ? (
