@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { buscarEventoPorPropriedade, cancelarEvento, criarEvento } from "./client";
+import { atualizarEvento, buscarEventoPorPropriedade, cancelarEvento, criarEvento } from "./client";
 import { obterAccessTokenValido } from "./tokens";
 import { construirPayloadEvento, type AulaParaEvento } from "./eventos-para-google";
 import { CHAVE_MARCADOR_AULA } from "./constantes";
@@ -95,6 +95,71 @@ export async function sincronizarCriacaoDaAula(
   });
 
   if (!resultado.ok) {
+    await marcarTentativaFalha(supabase, aula.aulaId, resultado.erro);
+    return;
+  }
+
+  await marcarSucesso(supabase, aula.aulaId, resultado.data.id, resultado.data.etag);
+}
+
+/**
+ * Atualiza (PATCH) o evento de uma aula que já foi sincronizada antes
+ * — usado quando o professor aprova uma remarcação sugerida pelo
+ * aluno (mesma linha de aluno_horarios, só muda data_hora; ver
+ * aprovarSolicitacao). Preserva o mesmo google_event_id em vez de
+ * cancelar+recriar, porque é exatamente isso que já acontece do lado
+ * local (UPDATE na mesma linha, não delete+insert).
+ *
+ * Sem google_event_id ainda (aula nunca foi sincronizada) ou evento
+ * 404/410 (professor apagou manualmente no Google): cai pra
+ * sincronizarCriacaoDaAula, que já faz reconciliação por
+ * extendedProperties antes de criar — nenhum código novo pra esse
+ * caso, só reaproveita o que já existe.
+ */
+export async function sincronizarAtualizacaoDaAula(
+  supabase: SupabaseClient,
+  professorId: string,
+  aula: AulaParaEvento,
+  googleEventIdAtual: string | null,
+  etagAtual: string | null
+): Promise<void> {
+  if (!googleEventIdAtual) {
+    await sincronizarCriacaoDaAula(supabase, professorId, aula);
+    return;
+  }
+
+  const { data: conta } = await supabase
+    .from("google_calendar_accounts")
+    .select("id, primary_calendar_id, escrita_habilitada")
+    .eq("professor_id", professorId)
+    .eq("status", "conectado")
+    .maybeSingle();
+
+  if (!conta || !conta.escrita_habilitada || !conta.primary_calendar_id) return;
+
+  const tokenResultado = await obterAccessTokenValido(supabase, conta.id);
+  if (!tokenResultado.ok) {
+    await marcarTentativaFalha(supabase, aula.aulaId, tokenResultado.erro);
+    return;
+  }
+
+  const resultado = await atualizarEvento({
+    accessToken: tokenResultado.accessToken,
+    calendarId: conta.primary_calendar_id,
+    eventId: googleEventIdAtual,
+    etag: etagAtual ?? undefined,
+    evento: construirPayloadEvento(aula),
+  });
+
+  if (!resultado.ok) {
+    if (resultado.erro === "evento_nao_encontrado") {
+      await supabase
+        .from("aluno_horarios")
+        .update({ google_event_id: null, google_event_etag: null })
+        .eq("id", aula.aulaId);
+      await sincronizarCriacaoDaAula(supabase, professorId, aula);
+      return;
+    }
     await marcarTentativaFalha(supabase, aula.aulaId, resultado.erro);
     return;
   }
