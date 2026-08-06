@@ -13,6 +13,9 @@ export const LABEL_TIPO_AGENDAMENTO: Record<string, string> = {
   outro: "Outro",
 };
 
+/** aluno_horarios não guarda duração — toda aula regular usa este valor fixo (criação e reprocessamento). */
+export const DURACAO_PADRAO_AULA_MINUTOS = 60;
+
 /**
  * Sempre em UTC — nunca hora local. `mesRef` e as chaves de
  * aulasPorDia/eventosGooglePorDia são construídos no servidor (que

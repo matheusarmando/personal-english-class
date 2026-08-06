@@ -1,4 +1,4 @@
-import type { CalendarioGoogle, PaginaEventos, ResultadoGoogle, TokensGoogle } from "./tipos";
+import type { CalendarioGoogle, EventoGooglePayload, PaginaEventos, ResultadoGoogle, TokensGoogle } from "./tipos";
 
 const OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const OAUTH_REVOKE_URL = "https://oauth2.googleapis.com/revoke";
@@ -244,6 +244,108 @@ export async function pararWatch(params: {
   });
 
   if (!resposta.ok && resposta.status !== 404) {
+    const corpo = await resposta.json().catch(() => null);
+    return { ok: false, erro: corpo?.error?.message ?? `HTTP ${resposta.status}`, status: resposta.status };
+  }
+  return { ok: true, data: undefined };
+}
+
+// =========================================================
+// Fase 2 — escrita. Mesmo padrão de retry/erro das funções acima.
+// =========================================================
+
+/**
+ * Busca um evento pelo par chave/valor em `extendedProperties.private`
+ * — usado pra reconciliação antes de criar (idempotência): se a
+ * escrita anterior criou o evento no Google mas caiu antes de gravar
+ * o id de volta no banco, isso encontra o evento já existente em vez
+ * de criar um duplicado.
+ */
+export async function buscarEventoPorPropriedade(params: {
+  accessToken: string;
+  calendarId: string;
+  chave: string;
+  valor: string;
+}): Promise<ResultadoGoogle<{ id: string; etag: string } | null>> {
+  const query = new URLSearchParams({
+    privateExtendedProperty: `${params.chave}=${params.valor}`,
+    maxResults: "1",
+    showDeleted: "false",
+  });
+
+  const resposta = await fetchComRetry(
+    `${CALENDAR_API}/calendars/${encodeURIComponent(params.calendarId)}/events?${query.toString()}`,
+    { headers: cabecalhosAuth(params.accessToken) }
+  );
+
+  const corpo = await resposta.json().catch(() => null);
+  if (!resposta.ok) {
+    return { ok: false, erro: corpo?.error?.message ?? `HTTP ${resposta.status}`, status: resposta.status };
+  }
+
+  const item = corpo.items?.[0];
+  return { ok: true, data: item ? { id: item.id, etag: item.etag } : null };
+}
+
+export async function criarEvento(params: {
+  accessToken: string;
+  calendarId: string;
+  evento: EventoGooglePayload;
+}): Promise<ResultadoGoogle<{ id: string; etag: string }>> {
+  const resposta = await fetchComRetry(`${CALENDAR_API}/calendars/${encodeURIComponent(params.calendarId)}/events`, {
+    method: "POST",
+    headers: cabecalhosAuth(params.accessToken),
+    body: JSON.stringify(params.evento),
+  });
+
+  const corpo = await resposta.json().catch(() => null);
+  if (!resposta.ok) {
+    return { ok: false, erro: corpo?.error?.message ?? `HTTP ${resposta.status}`, status: resposta.status };
+  }
+
+  return { ok: true, data: { id: corpo.id, etag: corpo.etag } };
+}
+
+/** `events.patch` com escrita condicional via `If-Match` quando um etag é conhecido. */
+export async function atualizarEvento(params: {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+  etag?: string;
+  evento: Partial<EventoGooglePayload>;
+}): Promise<ResultadoGoogle<{ id: string; etag: string }>> {
+  const headers = cabecalhosAuth(params.accessToken);
+  if (params.etag) (headers as Record<string, string>)["If-Match"] = params.etag;
+
+  const resposta = await fetchComRetry(
+    `${CALENDAR_API}/calendars/${encodeURIComponent(params.calendarId)}/events/${encodeURIComponent(params.eventId)}`,
+    { method: "PATCH", headers, body: JSON.stringify(params.evento) }
+  );
+
+  if (resposta.status === 404 || resposta.status === 410) {
+    return { ok: false, erro: "evento_nao_encontrado", status: resposta.status };
+  }
+
+  const corpo = await resposta.json().catch(() => null);
+  if (!resposta.ok) {
+    return { ok: false, erro: corpo?.error?.message ?? `HTTP ${resposta.status}`, status: resposta.status };
+  }
+
+  return { ok: true, data: { id: corpo.id, etag: corpo.etag } };
+}
+
+/** `events.delete` — 404/410 (evento já não existe) é tratado como sucesso, é o estado final desejado. */
+export async function cancelarEvento(params: {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+}): Promise<ResultadoGoogle<void>> {
+  const resposta = await fetchComRetry(
+    `${CALENDAR_API}/calendars/${encodeURIComponent(params.calendarId)}/events/${encodeURIComponent(params.eventId)}`,
+    { method: "DELETE", headers: cabecalhosAuth(params.accessToken) }
+  );
+
+  if (!resposta.ok && resposta.status !== 404 && resposta.status !== 410) {
     const corpo = await resposta.json().catch(() => null);
     return { ok: false, erro: corpo?.error?.message ?? `HTTP ${resposta.status}`, status: resposta.status };
   }

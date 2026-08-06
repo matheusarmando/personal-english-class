@@ -1,7 +1,8 @@
 import { createClient, getProfile } from "@/lib/supabase/server";
 import { LABEL_TIPO_AGENDAMENTO } from "@/lib/calendario";
-import { excluirAgendamentoAvulso, aprovarSolicitacao, recusarSolicitacao } from "./actions";
+import { excluirAgendamentoAvulso } from "./actions";
 import FormNovoAgendamento from "./FormNovoAgendamento";
+import ResponderSolicitacaoForm from "./ResponderSolicitacaoForm";
 import ConfirmarAcao from "@/components/ConfirmarAcao";
 import EstadoVazio from "@/components/EstadoVazio";
 
@@ -96,29 +97,7 @@ export default async function AgendamentosPage() {
                       </div>
                     </div>
 
-                    <form className="mt-3 flex flex-col gap-2">
-                      <input
-                        name="resposta"
-                        placeholder="Resposta ao aluno (opcional)"
-                        className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs"
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          type="submit"
-                          formAction={aprovarSolicitacao.bind(null, s.id)}
-                          className="rounded-lg bg-good/15 text-good px-3 py-1.5 text-xs font-semibold hover:bg-good hover:text-white transition-colors"
-                        >
-                          Aprovar
-                        </button>
-                        <button
-                          type="submit"
-                          formAction={recusarSolicitacao.bind(null, s.id)}
-                          className="rounded-lg bg-bad/15 text-bad px-3 py-1.5 text-xs font-semibold hover:bg-bad hover:text-white transition-colors"
-                        >
-                          Recusar
-                        </button>
-                      </div>
-                    </form>
+                    <ResponderSolicitacaoForm solicitacaoId={s.id} />
                   </li>
                 );
               })}

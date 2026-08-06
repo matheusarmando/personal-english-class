@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calcularIntervalosOcupados } from "./ocupacao";
+import { CHAVE_MARCADOR_AULA } from "./constantes";
 import { chaveDia } from "@/lib/calendario";
 
 export type EventoGoogleDoDia = { hora: string; titulo: string };
@@ -36,7 +37,7 @@ export async function buscarEventosGooglePorDia(
 
     const { data: eventosGoogleRaw, error: erroEventos } = await admin
       .from("google_calendar_events")
-      .select("title, starts_at, ends_at, is_all_day, transparency, status, attendee_response")
+      .select("title, starts_at, ends_at, is_all_day, transparency, status, attendee_response, raw")
       .eq("account_id", contaGoogle.id)
       .lt("starts_at", fimMes.toISOString())
       .gte("ends_at", inicioMes.toISOString());
@@ -54,6 +55,7 @@ export async function buscarEventosGooglePorDia(
         transparency: e.transparency,
         status: e.status,
         attendeeResponse: e.attendee_response,
+        criadoPelaPlataforma: Boolean((e.raw as any)?.extendedProperties?.private?.[CHAVE_MARCADOR_AULA]),
       })),
       { ignorarDiaInteiro: contaGoogle.ignorar_dia_inteiro }
     );
