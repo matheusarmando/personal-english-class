@@ -50,7 +50,7 @@ export default async function AlunoChatPage() {
       {!aluno ? (
         <EstadoVazio texto="Cadastro de aluno não encontrado." />
       ) : (
-        <div className="max-w-2xl border border-line rounded-xl bg-white overflow-hidden flex flex-col h-[32rem]">
+        <div className="max-w-2xl border border-line rounded-xl bg-white overflow-hidden flex flex-col h-[70vh] md:h-[32rem]">
           <ThreadMensagens mensagens={mensagens} meuProfileId={profile?.id ?? ""} />
           {conversaId && <EnviarMensagemForm conversaId={conversaId} />}
         </div>

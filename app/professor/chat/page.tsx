@@ -26,6 +26,9 @@ export default async function ChatPage({
   const listaAlunos = alunos ?? [];
   const selecionadoId = searchParams.aluno ?? listaAlunos[0]?.id;
   const alunoSelecionado = listaAlunos.find((a) => a.id === selecionadoId);
+  // No mobile as duas colunas viram telas separadas — só mostra a
+  // conversa quando o aluno foi escolhido de verdade (não o default).
+  const mobileMostrandoThread = Boolean(searchParams.aluno);
 
   let mensagens: { id: string; remetenteId: string; texto: string; hora: string }[] = [];
   let conversaId: string | null = null;
@@ -63,8 +66,12 @@ export default async function ChatPage({
           <span className="font-medium">Alunos</span> pra ter conversas aqui.
         </p>
       ) : (
-        <div className="max-w-3xl border border-line rounded-xl bg-white overflow-hidden grid grid-cols-[13rem_1fr] h-[32rem]">
-          <aside className="border-r border-line overflow-y-auto">
+        <div className="max-w-3xl border border-line rounded-xl bg-white overflow-hidden grid grid-cols-1 md:grid-cols-[13rem_1fr] h-[70vh] md:h-[32rem]">
+          <aside
+            className={`border-r border-line overflow-y-auto ${
+              mobileMostrandoThread ? "hidden md:block" : "block"
+            }`}
+          >
             {listaAlunos.map((a) => (
               <Link
                 key={a.id}
@@ -79,8 +86,11 @@ export default async function ChatPage({
             ))}
           </aside>
 
-          <div className="flex flex-col">
-            <div className="px-4 py-3 border-b border-line">
+          <div className={`flex-col ${mobileMostrandoThread ? "flex" : "hidden md:flex"}`}>
+            <div className="px-4 py-3 border-b border-line flex items-center gap-2">
+              <Link href="/professor/chat" prefetch={false} className="text-ink/50 hover:text-ink md:hidden">
+                ←
+              </Link>
               <p className="text-sm font-semibold">{alunoSelecionado?.nome}</p>
             </div>
 
