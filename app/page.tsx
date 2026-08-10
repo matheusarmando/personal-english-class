@@ -129,7 +129,11 @@ export default function LandingPage() {
                 <span></span>
               </div>
               <div className={styles.placeholder}>
-                <small>print: painel do professor — agenda, turmas, financeiro</small>
+                <img
+                  className={styles.shotImg}
+                  src="/print-painel-professor.png"
+                  alt="Painel do professor: recebido no mês, aulas da semana, frequência e próximas aulas"
+                />
               </div>
             </div>
           </div>
@@ -169,7 +173,7 @@ export default function LandingPage() {
 
         <section className={styles.section}>
           <div className={styles.wrap}>
-            <span className={styles.exemploTag}>Exemplo — substituir por métricas reais</span>
+            <span className={styles.exemploTag}>Estimativa · com base em uso típico de professores particulares</span>
             <div className={styles.stats} style={{ marginTop: 16 }}>
               <div className={styles.stat}>
                 <b>7h</b>
@@ -228,17 +232,21 @@ export default function LandingPage() {
 
         <section className={styles.section}>
           <div className={styles.wrap}>
-            <span className={styles.exemploTag}>Depoimento de exemplo</span>
+            <span className={styles.exemploTag}>Cenário de uso</span>
             <div className={styles.quote} style={{ marginTop: 16 }}>
               <div>
                 <blockquote>
-                  &ldquo;Eu dava aula de violão para 22 alunos e controlava tudo no caderno. Hoje
-                  é um clique.&rdquo;
+                  &ldquo;Trocar o caderno e três grupos de WhatsApp por um painel só — pra
+                  organizar alunos, aulas, provas e pagamentos sem trocar de aba.&rdquo;
                 </blockquote>
-                <cite>Marina Alves · professora de violão, Curitiba</cite>
+                <cite>É o que a Personal Class resolve pra quem dá aula particular, de qualquer matéria.</cite>
               </div>
               <div className={styles.placeholder}>
-                <small>foto: professora depoimento</small>
+                <img
+                  className={styles.shotImg}
+                  src="/print-area-aluno.png"
+                  alt="Área do aluno: lista de tarefas com prazo, status e nota"
+                />
               </div>
             </div>
           </div>
