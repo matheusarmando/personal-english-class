@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Past, Past Continuous & There was/were — Teacher JuFuza</title>
+<style>
+  :root{
+    --blue:#2f5fa8;
+    --blue-dark:#1e3f75;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#d7deec;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --ok:#1a7f37;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px 16px 80px;
+  }
+  .wrap{max-width:900px;margin:0 auto;}
+  h1{color:var(--blue-dark);font-size:1.4rem;margin-bottom:4px;}
+  .subtitle{color:var(--muted);margin-top:0;margin-bottom:24px;font-size:.95rem;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .card h2{
+    color:var(--blue);
+    font-size:1.1rem;
+    margin-top:0;
+    border-bottom:2px solid var(--border);
+    padding-bottom:8px;
+  }
+  .card h3{color:var(--blue-dark);font-size:1rem;margin-bottom:4px;}
+  .item{margin:14px 0;line-height:2.1;}
+  .item .num{color:var(--blue);font-weight:600;margin-right:4px;}
+  .hint{color:var(--muted);font-style:italic;font-size:.92rem;}
+  .story{line-height:2.3;font-size:1.02rem;}
+  .story p{margin:0 0 16px;}
+  input[type=text]{
+    border:none;
+    border-bottom:2px solid var(--border);
+    background:transparent;
+    font-family:inherit;
+    font-size:1rem;
+    padding:2px 4px;
+    min-width:130px;
+    color:var(--blue-dark);
+    outline:none;
+  }
+  input[type=text]:focus{border-bottom-color:var(--blue);}
+  input.no-hint{min-width:100px;}
+  .options{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0 22px;}
+  .opt-label{
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:5px 12px;
+    font-size:.92rem;
+    cursor:pointer;
+    user-select:none;
+    transition:.15s;
+  }
+  .opt-label:has(input:checked){background:var(--blue);border-color:var(--blue);color:#fff;}
+  .opt-label input{margin-right:6px;}
+  textarea{
+    width:100%;
+    min-height:70px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    font-family:inherit;
+    font-size:.98rem;
+    resize:vertical;
+    color:var(--text);
+    margin-top:6px;
+  }
+  textarea:focus{outline:none;border-color:var(--blue);}
+  .toolbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(244,246,251,.92);
+    backdrop-filter:blur(4px);
+    padding:10px 0;
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-bottom:8px;
+  }
+  button{
+    font-family:inherit;
+    font-size:.9rem;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    cursor:pointer;
+    color:var(--text);
+  }
+  button.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  button:hover{filter:brightness(.97);}
+  #toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ok);
+    color:#fff;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:.9rem;
+    opacity:0;
+    transition:.25s;
+    pointer-events:none;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  @media print{
+    .toolbar{display:none;}
+    body{background:#fff;}
+    .card{box-shadow:none;border:1px solid #ccc;}
+    input[type=text]{border-bottom:1px solid #000;}
+    textarea{border:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button id="clearBtn">Limpar respostas</button>
+    <button id="printBtn">Imprimir / PDF</button>
+    <button class="primary" id="saveBtn">Salvar respostas</button>
+  </div>
+
+  <h1>Simple Past, Past Continuous &amp; There was / There were</h1>
+  <p class="subtitle">Teacher JuFuza — versão digital. Suas respostas são salvas automaticamente neste navegador.</p>
+
+  <div class="card">
+    <h2>A — Use the correct form of the verb in parentheses (Simple Past or Past Continuous)</h2>
+    <div id="secA"></div>
+  </div>
+
+  <div class="card">
+    <h2>B — Use Simple Past, Past Continuous, or There was / There were</h2>
+    <div id="secB"></div>
+  </div>
+
+  <div class="card">
+    <h2>C — WH-Questions (Complete the verbs correctly)</h2>
+    <div id="secC"></div>
+  </div>
+
+  <div class="card">
+    <h2>D — Fill the blanks using: Simple Past, Past Continuous, There was / There were</h2>
+    <h3>Text: The Night Everything Changed</h3>
+    <div class="story" id="secD"></div>
+  </div>
+
+  <div class="card">
+    <h2>E — Choose the correct option</h2>
+    <div id="secE"></div>
+  </div>
+
+  <div class="card">
+    <h2>F — Interpretation / Comprehension Questions</h2>
+    <div id="secF"></div>
+  </div>
+</div>
+
+<div id="toast">Respostas salvas!</div>
+
+<script>
+const STORAGE_KEY = "exercicio-simple-past-continuous-there-01";
+
+function el(tag, attrs={}, children=[]){
+  const e = document.createElement(tag);
+  for(const k in attrs){
+    if(k === "text") e.textContent = attrs[k];
+    else e.setAttribute(k, attrs[k]);
+  }
+  children.forEach(c => e.appendChild(c));
+  return e;
+}
+function blankInput(id, noHint=false){
+  return el("input", {type:"text", "data-id":id, class: noHint ? "no-hint" : "", autocomplete:"off"});
+}
+function hintSpan(word){
+  return el("span",{class:"hint", text:" ("+word+")"});
+}
+
+// ---------- Section A ----------
+const secA = document.getElementById("secA");
+const dataA = [
+  {parts:["I "," for the test when my friend "," me."], hints:["study","call"]},
+  {parts:["She "," her phone while she "," to the bus stop."], hints:["break","run"]},
+  {parts:["We "," a movie when the lights suddenly "," out."], hints:["watch","go"]},
+  {parts:["They "," to the beach when their car "," working."], hints:["travel","stop"]},
+  {parts:["While I "," dinner, my sister "," the table."], hints:["cook","set"]},
+  {parts:["He "," and "," while he "," soccer."], hints:["slip","fall","play"]},
+  {parts:["I "," my best friend when I "," in São Paulo."], hints:["meet","live"]},
+  {parts:["She "," because she "," her wallet."], hints:["cry","lose"]},
+  {parts:["While they "," about the project, the teacher "," the classroom."], hints:["talk","enter"]},
+  {parts:["The dog "," loudly while we "," to sleep."], hints:["bark","try"]},
+  {parts:["I "," to school when it "," to rain heavily."], hints:["walk","start"]},
+  {parts:["He "," his keys while he "," to work."], hints:["forget","rush"]},
+  {parts:["We "," dinner when someone "," on the door."], hints:["have","knock"]},
+  {parts:["She "," me a message while I "," home."], hints:["send","drive"]},
+  {parts:["While they "," the house, they "," some old photos."], hints:["clean","find"]},
+  {parts:["I "," my leg when I "," basketball."], hints:["hurt","play"]},
+  {parts:["The baby "," when the phone "," ."], hints:["sleep","ring"]},
+  {parts:["He "," to music while he "," his homework."], hints:["listen","do"]},
+  {parts:["We "," a beautiful rainbow while we "," through the countryside."], hints:["see","drive"]},
+  {parts:["She "," her glass while she "," the dishes."], hints:["drop","wash"]},
+];
+dataA.forEach((row,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+"."}));
+  row.parts.forEach((t,idx)=>{
+    div.appendChild(document.createTextNode(t));
+    if(idx < row.hints.length){
+      div.appendChild(blankInput("A"+n+String.fromCharCode(97+idx)));
+      div.appendChild(hintSpan(row.hints[idx]));
+    }
+  });
+  secA.appendChild(div);
+});
+
+// ---------- Section B ----------
+const secB = document.getElementById("secB");
+// type "TV" = there-blank then verb-blank ; "VT" = verb-blank then there-blank
+const dataB = [
+  {type:"TV", mid:" a loud noise while we ", hint:"watch", tail:" TV."},
+  {type:"TV", mid:" many students waiting outside when the teacher ", hint:"arrive", tail:"."},
+  {type:"VT", head:"While I ", hint:"study", mid:", ", tail:" a power outage in my neighborhood."},
+  {type:"TV", mid:" several people talking when the meeting ", hint:"start", tail:"."},
+  {type:"TV", mid:" an accident while they ", hint:"drive", tail:" to work."},
+  {type:"VT", head:"When I ", hint:"enter", mid:" the room, ", tail:" children playing on the floor."},
+  {type:"TV", mid:" a strange smell while we ", hint:"cook", tail:" dinner."},
+  {type:"VT", head:"While she ", hint:"walk", mid:" home, ", tail:" a dog following her."},
+  {type:"TV", mid:" many problems when the company ", hint:"launch", tail:" the new product."},
+  {type:"TV", mid:" a long line while we ", hint:"wait", tail:" for the concert to begin."},
+  {type:"VT", head:"When the storm ", hint:"start", mid:", ", tail:" people running in every direction."},
+  {type:"TV", mid:" a misunderstanding while they ", hint:"discuss", tail:" the contract."},
+  {type:"VT", head:"While I ", hint:"clean", mid:" the garage, ", tail:" boxes falling from the shelf."},
+  {type:"TV", mid:" a lot of mistakes in the report when the manager ", hint:"check", tail:" it."},
+  {type:"TV", mid:" complete silence while the baby ", hint:"sleep", tail:"."},
+  {type:"VT", head:"While we ", hint:"hike", mid:", ", tail:" a beautiful waterfall nearby."},
+  {type:"TV", mid:" many cars blocking the street when we ", hint:"leave", tail:" the party."},
+  {type:"TV", mid:" a sudden change in the weather while we ", hint:"swim", tail:"."},
+  {type:"VT", head:"While he ", hint:"give", mid:" his presentation, ", tail:" people whispering in the back."},
+  {type:"TV", mid:" a big celebration after the team ", hint:"win", tail:" the championship."},
+  {type:"VT", head:"While I ", hint:"drive", mid:" home, ", tail:" heavy traffic on the highway."},
+  {type:"TV", mid:" bright lights flashing when the police ", hint:"arrive", tail:"."},
+  {type:"TV", mid:" an interesting documentary on TV while we ", hint:"have", tail:" dinner."},
+  {type:"VT", head:"While they ", hint:"build", mid:" the house, ", tail:" workers coming and going all day."},
+  {type:"TV", mid:" a problem with the computer while I ", hint:"finish", tail:" my project."},
+  {type:"TV", mid:" many questions when the professor ", hint:"finish", tail:" the lecture."},
+  {type:"VT", head:"While she ", hint:"study", mid:" abroad, ", tail:" cultural differences she needed to understand."},
+  {type:"TV", mid:" a lot of excitement while the band ", hint:"perform", tail:"."},
+  {type:"VT", head:"When we ", hint:"arrive", mid:" at the hotel, ", tail:" no rooms available."},
+  {type:"TV", mid:" a misunderstanding because they ", hint:"not listen", tail:" carefully."},
+  {type:"VT", head:"While I ", hint:"take", mid:" photos, ", tail:" birds flying above us."},
+  {type:"TV", mid:" a serious discussion while the children ", hint:"play", tail:" outside."},
+  {type:"VT", head:"When the lights ", hint:"go", mid:" out, ", tail:" panic in the room."},
+  {type:"TV", mid:" many people complaining while they ", hint:"wait", tail:" for assistance."},
+  {type:"VT", head:"While he ", hint:"repair", mid:" the car, ", tail:" tools scattered everywhere."},
+  {type:"TV", mid:" an important announcement while we ", hint:"attend", tail:" the conference."},
+  {type:"VT", head:"When she ", hint:"open", mid:" the door, ", tail:" someone standing outside."},
+  {type:"TV", mid:" several messages on my phone while I ", hint:"sleep", tail:"."},
+  {type:"VT", head:"While we ", hint:"travel", mid:" through the mountains, ", tail:" snow falling heavily."},
+  {type:"TV", mid:" a feeling of relief after they ", hint:"finish", tail:" the difficult exam."},
+];
+dataB.forEach((row,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+". "}));
+  if(row.type === "TV"){
+    div.appendChild(blankInput("B"+n+"a", true));
+    div.appendChild(document.createTextNode(row.mid));
+    div.appendChild(blankInput("B"+n+"b"));
+    div.appendChild(hintSpan(row.hint));
+    div.appendChild(document.createTextNode(row.tail));
+  } else {
+    div.appendChild(document.createTextNode(row.head));
+    div.appendChild(blankInput("B"+n+"a"));
+    div.appendChild(hintSpan(row.hint));
+    div.appendChild(document.createTextNode(row.mid));
+    div.appendChild(blankInput("B"+n+"b", true));
+    div.appendChild(document.createTextNode(row.tail));
+  }
+  secB.appendChild(div);
+});
+
+// ---------- Section C ----------
+const secC = document.getElementById("secC");
+const dataC = [
+  {n:26, parts:["Where ","you ","when I ","you?"], hints:[null,"go","call"]},
+  {n:27, parts:["What ","she ","when the teacher ","the room?"], hints:[null,"do","enter"]},
+  {n:28, parts:["Why ","they ","when there ","no danger?"], hints:[null,"run","be"]},
+  {n:29, parts:["Who ","outside when you ","the door?"], hints:["stand","open"]},
+  {n:30, parts:["What ","while we ","?"], hints:["happen","sleep"]},
+  {n:31, parts:["Why ","there ","so many people at the mall yesterday?"], hints:[null,"be"]},
+  {n:32, parts:["Where ","he ","when he ","his wife?"], hints:[null,"work","meet"]},
+  {n:33, parts:["What ","you ","when there ","a blackout?"], hints:[null,"watch","be"]},
+  {n:34, parts:["Why ","she ","while everyone ","?"], hints:[null,"cry","laugh"]},
+  {n:35, parts:["How many students ","there ","when the class ","?"], hints:[null,"be","begin"]},
+];
+dataC.forEach(row=>{
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:row.n+"."}));
+  row.parts.forEach((t,idx)=>{
+    div.appendChild(document.createTextNode(" "+t));
+    if(idx < row.hints.length){
+      div.appendChild(blankInput("C"+row.n+String.fromCharCode(97+idx), row.hints[idx]===null));
+      if(row.hints[idx]) div.appendChild(hintSpan(row.hints[idx]));
+    }
+  });
+  secC.appendChild(div);
+});
+
+// ---------- Section D ----------
+const secD = document.getElementById("secD");
+const paragraphsD = [
+  [`Last Friday, I `,{id:"D1",hint:"finish"},` some work at home when `,{id:"D2",hint:null},` a sudden power outage in my neighborhood. While I `,{id:"D3",hint:"look"},` for my phone to use the flashlight, I `,{id:"D4",hint:"hear"},` a loud noise outside. `,{id:"D5",hint:null},` people talking nervously in the street, and someone `,{id:"D6",hint:"knock"},` on my neighbor's door.`],
+  [`When I `,{id:"D7",hint:"open"},` the window, I `,{id:"D8",hint:"see"},` that `,{id:"D9",hint:null},` a car accident on the corner. A driver `,{id:"D10",hint:"lose"},` control while he `,{id:"D11",hint:"drive"},` in the heavy rain. `,{id:"D12",hint:null},` two damaged cars, and one of the drivers `,{id:"D13",hint:"call"},` for help.`],
+  [`While some neighbors `,{id:"D14",hint:"try"},` to assist them, others `,{id:"D15",hint:"ask"},`, "What `,{id:"D16",hint:"happen"},`?" and "`,{id:"D17",hint:null},` there anyone seriously hurt?"`],
+  [`I quickly `,{id:"D18",hint:"put"},` on my jacket and `,{id:"D19",hint:"go"},` outside. While I `,{id:"D20",hint:"walk"},` toward the scene, I `,{id:"D21",hint:"notice"},` that `,{id:"D22",hint:null},` broken pieces of glass on the ground. One woman `,{id:"D23",hint:"cry"},` because she `,{id:"D24",hint:"drive"},` the second car when the accident `,{id:"D25",hint:"happen"},`. She said she `,{id:"D26",hint:"turn"},` left when the other car suddenly `,{id:"D27",hint:"hit"},` her.`],
+  [`Soon, `,{id:"D28",hint:null},` police officers and paramedics arriving at the scene. While they `,{id:"D29",hint:"check"},` the drivers, `,{id:"D30",hint:null},` complete silence among the neighbors. Everyone `,{id:"D31",hint:"wait"},` to hear some news. Fortunately, `,{id:"D32",hint:null},` no serious injuries, but both cars `,{id:"D33",hint:"be"},` badly damaged.`],
+  [`After everything `,{id:"D34",hint:"calm"},` down, I `,{id:"D35",hint:"go"},` back home. `,{id:"D36",hint:null},` still no electricity, so I `,{id:"D37",hint:"sit"},` in the dark thinking about what `,{id:"D38",hint:"happen"},`. Why `,{id:"D39",hint:null},` the driver `,{id:"D40",hint:"lose"},` control? `,{id:"D41",hint:null},` he `,{id:"D42",hint:"use"},` his phone while he `,{id:"D43",hint:"drive"},`? `,{id:"D44",hint:null},` many questions in my mind that night.`],
+  [`When the power finally `,{id:"D45",hint:"come"},` back, I `,{id:"D46",hint:"realize"},` how quickly normal life can change. While I `,{id:"D47",hint:"try"},` to relax before bed, `,{id:"D48",hint:null},` still a feeling of tension in the air. It `,{id:"D49",hint:"be"},` a night I will never forget.`],
+];
+paragraphsD.forEach(tokens=>{
+  const p = el("p");
+  tokens.forEach(tok=>{
+    if(typeof tok === "string"){
+      p.appendChild(document.createTextNode(tok));
+    } else {
+      p.appendChild(blankInput(tok.id, tok.hint===null));
+      if(tok.hint) p.appendChild(hintSpan(tok.hint));
+    }
+  });
+  secD.appendChild(p);
+});
+
+// ---------- Section E ----------
+const secE = document.getElementById("secE");
+const dataE = [
+  ["I was finishing some work when ______ a sudden power outage.", ["there were","there was","there is"]],
+  ["While I ______ for my phone, I heard a loud noise.", ["looked","was looking","am looking"]],
+  ["There ______ people talking nervously in the street.", ["was","were","is"]],
+  ["The driver lost control while he ______ in the heavy rain.", ["drove","was driving","is driving"]],
+  ["One of the drivers ______ for help.", ["was calling","called","calls"]],
+  ["While some neighbors were trying to help, others ______ questions.", ["asked","were asking","ask"]],
+  ["There ______ two damaged cars on the street.", ["was","were","is"]],
+  ["The woman was crying because she ______ the second car.", ["drove","was driving","drives"]],
+  ["While they were checking the drivers, there ______ complete silence.", ["was","were","is"]],
+  ["Why ______ the driver lose control?", ["did","was","were"]],
+];
+dataE.forEach((row,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+". "}));
+  div.appendChild(document.createTextNode(row[0]));
+  const opts = el("div",{class:"options"});
+  row[1].forEach((opt,idx)=>{
+    const label = el("label",{class:"opt-label"});
+    const input = el("input",{type:"radio",name:"E"+n,value:opt,"data-id":"E"+n});
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(String.fromCharCode(97+idx)+") "+opt));
+    opts.appendChild(label);
+  });
+  div.appendChild(opts);
+  secE.appendChild(div);
+});
+
+// ---------- Section F ----------
+const secF = document.getElementById("secF");
+const dataF = [
+  "What happened in the neighborhood?",
+  "Why did the driver lose control of the car?",
+  "Were there serious injuries?",
+  "How did the neighbors react to the accident?",
+  "How did the narrator feel at the end of the story?",
+  "What were the neighbors doing when the accident happened?",
+  "What was the woman doing when the other car hit her?",
+  "Why was there complete silence at one moment?",
+  "What questions did the narrator ask at the end?",
+  "Why was this night unforgettable for the narrator?",
+];
+dataF.forEach((q,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+". "}));
+  div.appendChild(document.createTextNode(q));
+  const ta = el("textarea",{"data-id":"F"+n, rows:"2"});
+  div.appendChild(ta);
+  secF.appendChild(div);
+});
+
+// ---------- Persistence ----------
+function collect(){
+  const data = {};
+  document.querySelectorAll("[data-id]").forEach(input=>{
+    if(input.type === "radio"){
+      if(input.checked) data[input.dataset.id] = input.value;
+    } else {
+      data[input.dataset.id] = input.value;
+    }
+  });
+  return data;
+}
+function applyData(data){
+  document.querySelectorAll("[data-id]").forEach(input=>{
+    const val = data[input.dataset.id];
+    if(val === undefined) return;
+    if(input.type === "radio"){
+      if(input.value === val) input.checked = true;
+    } else {
+      input.value = val;
+    }
+  });
+}
+function save(showToast=true){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(collect()));
+  if(showToast){
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"), 1500);
+  }
+}
+function load(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){ try{ applyData(JSON.parse(raw)); }catch(e){} }
+}
+
+document.getElementById("saveBtn").addEventListener("click", ()=>save(true));
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  if(confirm("Tem certeza que quer apagar todas as respostas deste exercício?")){
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll("[data-id]").forEach(input=>{
+      if(input.type === "radio") input.checked = false;
+      else input.value = "";
+    });
+  }
+});
+document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+document.addEventListener("input", ()=>save(false));
+load();
+</script>
+</body>
+</html>
