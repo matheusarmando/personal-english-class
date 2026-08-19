@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Past Exercise 01 — Teacher JuFuza</title>
+<style>
+  :root{
+    --blue:#2f5fa8;
+    --blue-dark:#1e3f75;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#d7deec;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --ok:#1a7f37;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px 16px 80px;
+  }
+  .wrap{max-width:900px;margin:0 auto;}
+  h1{
+    color:var(--blue-dark);
+    font-size:1.5rem;
+    margin-bottom:4px;
+  }
+  .subtitle{color:var(--muted);margin-top:0;margin-bottom:24px;font-size:.95rem;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .card h2{
+    color:var(--blue);
+    font-size:1.1rem;
+    margin-top:0;
+    border-bottom:2px solid var(--border);
+    padding-bottom:8px;
+  }
+  .item{
+    margin:14px 0;
+    line-height:2.1;
+  }
+  .item .num{color:var(--blue);font-weight:600;margin-right:4px;}
+  .hint{
+    color:var(--muted);
+    font-style:italic;
+    font-size:.92rem;
+  }
+  input[type=text]{
+    border:none;
+    border-bottom:2px solid var(--border);
+    background:transparent;
+    font-family:inherit;
+    font-size:1rem;
+    padding:2px 4px;
+    min-width:150px;
+    color:var(--blue-dark);
+    outline:none;
+  }
+  input[type=text]:focus{border-bottom-color:var(--blue);}
+  input.small{min-width:110px;}
+  .verb-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:6px 32px;
+  }
+  @media(min-width:640px){
+    .verb-grid{grid-template-columns:1fr 1fr;}
+  }
+  .verb-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 0;
+    border-bottom:1px dashed var(--border);
+    flex-wrap:wrap;
+  }
+  .verb-row .base{min-width:90px;font-weight:600;}
+  .verb-row .col-label{font-size:.75rem;color:var(--muted);display:block;}
+  .col-labels{
+    display:flex;
+    gap:8px;
+    font-size:.75rem;
+    color:var(--muted);
+    margin:4px 0 8px;
+  }
+  .options{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-left:4px;
+  }
+  .opt-label{
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:5px 12px;
+    font-size:.92rem;
+    cursor:pointer;
+    user-select:none;
+    transition:.15s;
+  }
+  .opt-label:has(input:checked){
+    background:var(--blue);
+    border-color:var(--blue);
+    color:#fff;
+  }
+  .opt-label input{margin-right:6px;}
+  .wordbank{
+    background:#eef3fc;
+    border:1px dashed var(--blue);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:16px;
+    font-size:.95rem;
+    line-height:1.9;
+    color:var(--blue-dark);
+  }
+  .toolbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(244,246,251,.92);
+    backdrop-filter:blur(4px);
+    padding:10px 0;
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-bottom:8px;
+  }
+  button{
+    font-family:inherit;
+    font-size:.9rem;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    cursor:pointer;
+    color:var(--text);
+  }
+  button.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  button:hover{filter:brightness(.97);}
+  #toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ok);
+    color:#fff;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:.9rem;
+    opacity:0;
+    transition:.25s;
+    pointer-events:none;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  @media print{
+    .toolbar{display:none;}
+    body{background:#fff;}
+    .card{box-shadow:none;border:1px solid #ccc;}
+    input[type=text]{border-bottom:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button id="clearBtn">Limpar respostas</button>
+    <button id="printBtn">Imprimir / PDF</button>
+    <button class="primary" id="saveBtn">Salvar respostas</button>
+  </div>
+
+  <h1>Simple Past Exercise 01</h1>
+  <p class="subtitle">Teacher JuFuza — versão digital. Suas respostas são salvas automaticamente neste navegador.</p>
+
+  <div class="card">
+    <h2>A — Make the past simple: positive, negative or question.</h2>
+    <div id="secA"></div>
+  </div>
+
+  <div class="card">
+    <h2>B — Make the past simple: positive, negative or question.</h2>
+    <div id="secB"></div>
+  </div>
+
+  <div class="card">
+    <h2>C — Choose the best option.</h2>
+    <div id="secC"></div>
+  </div>
+
+  <div class="card">
+    <h2>D — Change the verb into the past</h2>
+    <p class="hint">Escreva o Simple Past (V2) e o Participle (V3) de cada verbo.</p>
+    <div class="col-labels" style="margin-left:0;"><span style="margin-left:98px;">Simple Past</span><span>Participle</span></div>
+    <div class="verb-grid" id="secD"></div>
+  </div>
+
+  <div class="card">
+    <h2>E — Complete with the correct verb in the past</h2>
+    <p class="hint">Use as palavras do quadro abaixo (algumas podem ser usadas mais de uma vez).</p>
+    <div class="wordbank">Ask · Carry · Fry · Look · Declare · Listen · Try · Fail · Walk · Arrive · Wash · Look · Want · Enter · Enjoy · Study · Follow · Live · Remain · Play · Help · Wait · Call · Fix · Appear · Pass · Marry · Arrive · Use · Cry · Go · Like · Die · Continue · Seem · Close · Seem · Jump · Clean · Dry · Fly</div>
+    <div id="secE"></div>
+  </div>
+</div>
+
+<div id="toast">Respostas salvas!</div>
+
+<script>
+const STORAGE_KEY = "exercicio-simple-past-01";
+
+function el(tag, attrs={}, children=[]){
+  const e = document.createElement(tag);
+  for(const k in attrs){
+    if(k === "text") e.textContent = attrs[k];
+    else e.setAttribute(k, attrs[k]);
+  }
+  children.forEach(c => e.appendChild(c));
+  return e;
+}
+
+function blankInput(id, small=false){
+  return el("input", {type:"text", "data-id":id, class: small ? "small" : "", autocomplete:"off"});
+}
+
+// ---------- Section A ----------
+const secA = document.getElementById("secA");
+const dataA = [
+  ["I", "not / drink", "any beer last night."],
+  ["She", "get on", "the bus in the center of the city."],
+  ["What time", "he / get up", "yesterday?"],
+  ["Where", "you / get off", "the train?"],
+  ["I", "not / change", "trains at Victoria."],
+  ["We", "wake up", "very late."],
+  ["What", "he / give", "his mother for Christmas?"],
+  ["I", "receive", "£300 when my uncle _____ (die)."],
+  ["We", "not / use", "the computer last night."],
+  ["", "she / make", "good coffee?"],
+  ["They", "live", "in Paris."],
+  ["She", "read", "the newspaper yesterday."],
+  ["I", "not / watch", "TV."],
+  ["He", "not / study", "for the exam."],
+  ["", "he / call", "you?"],
+  ["", "I / forget", "something?"],
+  ["What time", "the film / start", "?"],
+  ["He", "have", "a shower."],
+  ["Why", "you / come", "?"],
+  ["", "he / go", "to the party?"],
+];
+dataA.forEach((row,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+"."}));
+  if(row[0]) div.appendChild(document.createTextNode(row[0]+" "));
+  if(n===8){
+    div.appendChild(blankInput("A"+n+"a"));
+    div.appendChild(document.createTextNode(" (receive) £300 when my uncle "));
+    div.appendChild(blankInput("A"+n+"b"));
+    div.appendChild(document.createTextNode(" (die)."));
+  } else {
+    div.appendChild(blankInput("A"+n));
+    div.appendChild(document.createTextNode(" ("+row[1]+") "+row[2]));
+  }
+  secA.appendChild(div);
+});
+
+// ---------- Section B ----------
+const secB = document.getElementById("secB");
+const dataB = [
+  {text:["I ", " my math homework yesterday. (to do)"], blanks:1},
+  {text:["", " Susan ", " to England by plane? (to go)"], blanks:2},
+  {text:["They ", " a farm two weeks ago. (to visit)"], blanks:1},
+  {text:["Jenny and Peggy ", " their brother. (not/to help)"], blanks:1},
+  {text:["When ", " you ", " this wonderful skirt? (to design)"], blanks:2},
+  {text:["My mother ", " into the van. (not/to crash)"], blanks:1},
+  {text:["The boys ", " the mudguards of their bicycles. (to take off)"], blanks:1},
+  {text:["", " you phone your aunt last week? (to phone)"], blanks:1},
+  {text:["He ", " milk at school. (not/to drink)"], blanks:1},
+  {text:["She ", " soccer with my brother at school. (play)"], blanks:1},
+  {text:["My cousins ", " their bags at the lost and found at the airport. (claim)"], blanks:1},
+  {text:["The dogs ", " after the cat for hours. (run)"], blanks:1},
+  {text:["The students ", " the book my teacher asked (not / read)"], blanks:1},
+  {text:["We ", " to London with our friends last weekend. (fly)"], blanks:1},
+  {text:["My boss ", " to my coworkers at the meeting. (talk)"], blanks:1},
+];
+dataB.forEach((row,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+"."}));
+  row.text.forEach((t,idx)=>{
+    div.appendChild(document.createTextNode(t));
+    if(idx < row.text.length-1){
+      div.appendChild(blankInput("B"+n+(row.blanks>1?["a","b"][idx]:"")));
+    }
+  });
+  secB.appendChild(div);
+});
+
+// ---------- Section C ----------
+const secC = document.getElementById("secC");
+const dataC = [
+  ["I ___ to work on the weekend.", ["didn't need","not needed","needed"]],
+  ["We ___ to Vancouver on holiday.", ["go","did go","went"]],
+  ["___ went by plane?", ["Did you go","Went you","Did you"]],
+  ["Jack ___ with us.", ["wasn't come","didn't came","didn't come"]],
+  ["The car suddenly ___.", ["stops","did stoped","stopped"]],
+  ["When she arrived he ___ at home.", ["weren't","wasn't","didn't was"]],
+  ["The police ___ the robber.", ["caught","catched","was catch"]],
+  ["I ___ a black shirt for the gala.", ["choosed","chose","did choose"]],
+  ["The meeting ___ not well.", ["didn't go","didn't went","went"]],
+  ["Manchester United ___ the final.", ["losed","lost","did lose"]],
+  ["How much did you ___ for the car?", ["payed","payed you","did you","pay"]],
+  ["I ___ my mum in the kitchen.", ["help","did help","helped"]],
+  ["Yesterday she ___ at the office after 10:00am.", ["did arrived","arrived","arrives"]],
+  ["The workers ___ to the meeting with the manager.", ["go","gone","went"]],
+  ["My clock ___ this morning.", ["breaking","broke","breaked"]],
+];
+dataC.forEach((row,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+". "}));
+  div.appendChild(document.createTextNode(row[0]));
+  const opts = el("div",{class:"options"});
+  row[1].forEach(opt=>{
+    const label = el("label",{class:"opt-label"});
+    const input = el("input",{type:"radio",name:"C"+n,value:opt,"data-id":"C"+n});
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(opt));
+    opts.appendChild(label);
+  });
+  div.appendChild(opts);
+  secC.appendChild(div);
+});
+
+// ---------- Section D ----------
+const secD = document.getElementById("secD");
+const verbs = ["Help","Wash","Live","Arrive","Play","Enjoy","Study","Cry","Stop","Plan","Stay","Cook","Visit","Feel","Watch","Jump","Listen","Work","Eat","Prefer","Fly","Swim","Turn","Need","Want","See","Go","Write","Walk","Sleep","Wake","Brush","Speak","Talk","Say","Run","Drive","Wash","Clean","Dance","Scream","Tell","Type","Answer","Ask","Plant","Feed","Fix","Marry","Ride","Teach","Learn","Sell","Buy","Drink","Bring","Catch","Have","Remember","Smell","Rise","Fail","Appear","Get","Follow","Pass","Burn","Choose","Explain","Hold","Improve","Send","Hear","Borrow","Carry","Break","Draw","Give","Pay","Slice","Taste","Judge","Compare","Organize","Think","Shake","Fight","Claim","Avoid","Find"];
+verbs.forEach((v,i)=>{
+  const n = i+1;
+  const row = el("div",{class:"verb-row"});
+  row.appendChild(el("span",{class:"base",text:n+". "+v}));
+  row.appendChild(blankInput("D"+n+"a", true));
+  row.appendChild(blankInput("D"+n+"b", true));
+  secD.appendChild(row);
+});
+
+// ---------- Section E ----------
+const secE = document.getElementById("secE");
+const dataE = [
+  "I ___ my mum in the kitchen.",
+  "My sister ___ in her room.",
+  "My mum ___ the green car.",
+  "My granny ___ to the shop.",
+  "My brother ___ to music.",
+  "They ___ a year ago.",
+  "My aunt ___ her new laptop.",
+  "My cousins ___ very late.",
+  "The baby ___ a lot.",
+  "My dad ___ his old bike.",
+  "The dogs ___ in the garden.",
+  "She ___ to the store with my sister yesterday.",
+  "They ___ to run at the park last weekend.",
+  "The man ___ the box inside.",
+  "We ___ the movie.",
+  "My Grandmother ___ two eggs for breakfast.",
+  "He ___ her for the mother of his children.",
+  "They ___ me to go and see them.",
+  "For a moment my courage ___ me.",
+  "He ___ to do so till his death.",
+  "She ___ full into his face.",
+  "Then she ___ in her mother's room.",
+  "It ___ to reach us, but could not.",
+  "But she ___ too late for this.",
+  "I ___ for a moment or two.",
+  "He ___ to him to stop a moment.",
+  "Her father ___ through the door again.",
+  "It ___ to have done its work.",
+  "I ___ them with my eyes through the crowd.",
+  "He ___ to his country and ___ there.",
+  "We ___ the whole of the next day in the same place.",
+  "He ___ the room and ___ the door behind him.",
+  "She ___ it should not be so.",
+  "They ___ to know all about her.",
+  "Thus they ___ in silence for a long time.",
+  "He ___ in Rome long ago.",
+  "Rose ___ the house alone.",
+  "The wind ___ my clothes.",
+  "She ___ first class to The United States.",
+  "He ___ at church last weekend.",
+];
+dataE.forEach((sentence,i)=>{
+  const n = i+1;
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"num",text:n+". "}));
+  const parts = sentence.split("___");
+  parts.forEach((part,idx)=>{
+    div.appendChild(document.createTextNode(part));
+    if(idx < parts.length-1){
+      div.appendChild(blankInput("E"+n+(parts.length>2?["a","b"][idx]:"")));
+    }
+  });
+  secE.appendChild(div);
+});
+
+// ---------- Persistence ----------
+function collect(){
+  const data = {};
+  document.querySelectorAll("input[data-id]").forEach(input=>{
+    if(input.type === "radio"){
+      if(input.checked) data[input.dataset.id] = input.value;
+    } else {
+      data[input.dataset.id] = input.value;
+    }
+  });
+  return data;
+}
+
+function applyData(data){
+  document.querySelectorAll("input[data-id]").forEach(input=>{
+    const val = data[input.dataset.id];
+    if(val === undefined) return;
+    if(input.type === "radio"){
+      if(input.value === val) input.checked = true;
+    } else {
+      input.value = val;
+    }
+  });
+}
+
+function save(showToast=true){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(collect()));
+  if(showToast){
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"), 1500);
+  }
+}
+
+function load(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{ applyData(JSON.parse(raw)); }catch(e){}
+  }
+}
+
+document.getElementById("saveBtn").addEventListener("click", ()=>save(true));
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  if(confirm("Tem certeza que quer apagar todas as respostas deste exercício?")){
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll("input[data-id]").forEach(input=>{
+      if(input.type === "radio") input.checked = false;
+      else input.value = "";
+    });
+  }
+});
+document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+document.addEventListener("input", ()=>save(false));
+load();
+</script>
+</body>
+</html>

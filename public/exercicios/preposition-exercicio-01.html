@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preposition Exercise 01 — Matheus Armando</title>
+<style>
+  :root{
+    --green:#2f7a4f;
+    --green-dark:#1f5636;
+    --bg:#f2f7f3;
+    --card:#ffffff;
+    --border:#d7e6dc;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --ok:#1a7f37;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px 16px 80px;
+  }
+  .wrap{max-width:820px;margin:0 auto;}
+  h1{color:var(--green-dark);font-size:1.5rem;margin-bottom:4px;}
+  .subtitle{color:var(--muted);margin-top:0;margin-bottom:24px;font-size:.95rem;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .card h2{
+    color:var(--green);
+    font-size:1.1rem;
+    margin-top:0;
+    border-bottom:2px solid var(--border);
+    padding-bottom:8px;
+  }
+  .hint{color:var(--muted);font-size:.92rem;margin-top:-6px;}
+  .item{margin:14px 0;line-height:2.1;}
+  .item .letter{color:var(--green);font-weight:700;margin-right:4px;}
+  .wordbank{
+    background:#e9f5ee;
+    border:1px dashed var(--green);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:16px;
+    font-size:1rem;
+    font-weight:600;
+    letter-spacing:.3px;
+    text-align:center;
+    color:var(--green-dark);
+  }
+  input[type=text]{
+    border:none;
+    border-bottom:2px solid var(--border);
+    background:transparent;
+    font-family:inherit;
+    font-size:1rem;
+    padding:2px 4px;
+    min-width:120px;
+    color:var(--green-dark);
+    outline:none;
+    text-align:center;
+  }
+  input[type=text]:focus{border-bottom-color:var(--green);}
+  input.letter-input{min-width:36px;max-width:36px;text-transform:uppercase;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  table th, table td{
+    text-align:left;
+    padding:10px 8px;
+    border-bottom:1px solid var(--border);
+    vertical-align:middle;
+  }
+  table th{color:var(--muted);font-size:.85rem;font-weight:600;}
+  .match-word{font-weight:600;color:var(--green-dark);}
+  .toolbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(242,247,243,.92);
+    backdrop-filter:blur(4px);
+    padding:10px 0;
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-bottom:8px;
+  }
+  button{
+    font-family:inherit;
+    font-size:.9rem;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    cursor:pointer;
+    color:var(--text);
+  }
+  button.primary{background:var(--green);color:#fff;border-color:var(--green);}
+  button:hover{filter:brightness(.97);}
+  #toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ok);
+    color:#fff;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:.9rem;
+    opacity:0;
+    transition:.25s;
+    pointer-events:none;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  @media print{
+    .toolbar{display:none;}
+    body{background:#fff;}
+    .card{box-shadow:none;border:1px solid #ccc;}
+    input[type=text]{border-bottom:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button id="clearBtn">Limpar respostas</button>
+    <button id="printBtn">Imprimir / PDF</button>
+    <button class="primary" id="saveBtn">Salvar respostas</button>
+  </div>
+
+  <h1>Preposition Exercise 01</h1>
+  <p class="subtitle">Matheus Armando — versão digital. Suas respostas são salvas automaticamente neste navegador.</p>
+
+  <div class="card">
+    <h2>01 — Complete each sentence with the correct word from the box</h2>
+    <p class="hint">Você pode usar cada palavra duas vezes.</p>
+    <div class="wordbank">Above &nbsp;·&nbsp; Across &nbsp;·&nbsp; Along &nbsp;·&nbsp; Among</div>
+    <div id="sec01"></div>
+  </div>
+
+  <div class="card">
+    <h2>02 — Match the words with the correct description</h2>
+    <p class="hint">Escreva a letra da descrição correspondente (A, B, C ou D) ao lado de cada palavra.</p>
+    <table>
+      <thead><tr><th>Word</th><th></th><th>Description / Meaning</th></tr></thead>
+      <tbody id="sec02"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toast">Respostas salvas!</div>
+
+<script>
+const STORAGE_KEY = "exercicio-preposition-01";
+
+function el(tag, attrs={}, children=[]){
+  const e = document.createElement(tag);
+  for(const k in attrs){
+    if(k === "text") e.textContent = attrs[k];
+    else e.setAttribute(k, attrs[k]);
+  }
+  children.forEach(c => e.appendChild(c));
+  return e;
+}
+function blankInput(id, cls=""){
+  return el("input", {type:"text", "data-id":id, class: cls, autocomplete:"off"});
+}
+
+// ---------- Section 01 ----------
+const sec01 = document.getElementById("sec01");
+const data01 = [
+  ["A", "We walked ___ the river path for two hours and enjoyed the sound of the moving water."],
+  ["B", "If you look ___ the old bookshelf, you will see a small, hidden key on the top ledge."],
+  ["C", "To get to the bakery, you need to walk safely ___ the busy street at the traffic light."],
+  ["D", "She felt very comfortable ___ her old school friends because she knew them so well."],
+  ["E", "The airplane flew high ___ the thick white clouds, where the sky was perfectly blue."],
+  ["F", "The small village is hidden ___ the tall mountains, making it difficult to find on a map."],
+  ["G", "I love driving ___ the coast on sunny days so I can look at the ocean the whole time."],
+  ["H", "The family threw a frisbee back and forth ___ the park lawn to each other."],
+];
+data01.forEach(([letter, sentence])=>{
+  const div = el("div", {class:"item"});
+  div.appendChild(el("span",{class:"letter",text:letter+". "}));
+  const parts = sentence.split("___");
+  div.appendChild(document.createTextNode(parts[0]));
+  div.appendChild(blankInput("Q1"+letter));
+  div.appendChild(document.createTextNode(parts[1]));
+  sec01.appendChild(div);
+});
+
+// ---------- Section 02 ----------
+const sec02 = document.getElementById("sec02");
+const data02 = [
+  ["A", "Above", "From one side of something to the other side."],
+  ["B", "Across", "In a line next to something long and thin (like a road, river, or path)."],
+  ["C", "Along", "In a higher position than something else, without touching it."],
+  ["D", "Among", "In the middle of a group of people or things; surrounded by them."],
+];
+data02.forEach(([letter, word, desc])=>{
+  const tr = el("tr");
+  const tdWord = el("td");
+  tdWord.appendChild(el("span",{class:"match-word",text:letter+". "+word}));
+  const tdInput = el("td");
+  tdInput.appendChild(document.createTextNode("("));
+  tdInput.appendChild(blankInput("Q2"+letter, "letter-input"));
+  tdInput.appendChild(document.createTextNode(")"));
+  const tdDesc = el("td",{text: desc});
+  tr.appendChild(tdWord);
+  tr.appendChild(tdInput);
+  tr.appendChild(tdDesc);
+  sec02.appendChild(tr);
+});
+
+// ---------- Persistence ----------
+function collect(){
+  const data = {};
+  document.querySelectorAll("input[data-id]").forEach(input=>{ data[input.dataset.id] = input.value; });
+  return data;
+}
+function applyData(data){
+  document.querySelectorAll("input[data-id]").forEach(input=>{
+    if(data[input.dataset.id] !== undefined) input.value = data[input.dataset.id];
+  });
+}
+function save(showToast=true){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(collect()));
+  if(showToast){
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"), 1500);
+  }
+}
+function load(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){ try{ applyData(JSON.parse(raw)); }catch(e){} }
+}
+
+document.getElementById("saveBtn").addEventListener("click", ()=>save(true));
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  if(confirm("Tem certeza que quer apagar todas as respostas deste exercício?")){
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll("input[data-id]").forEach(input=> input.value = "");
+  }
+});
+document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+document.addEventListener("input", ()=>save(false));
+load();
+</script>
+</body>
+</html>
